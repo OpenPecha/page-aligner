@@ -4,7 +4,8 @@ import './index.css';
 import App from './App.tsx';
 
 async function enableMocking() {
-  if (import.meta.env.MODE !== 'development') {
+  if (import.meta.env.VITE_API_MOCKING === 'false') {
+    console.log('API mocking is disabled');
     return;
   }
 
