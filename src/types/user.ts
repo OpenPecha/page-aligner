@@ -1,17 +1,18 @@
 // User roles in the system
 export enum UserRole {
-  Admin = 'Admin',
-  Annotator = 'Annotator',
-  Reviewer = 'Reviewer',
-  FinalReviewer = 'FinalReviewer',
+  Admin = 'admin',
+  Annotator = 'annotator',
+  Reviewer = 'reviewer',
+  FinalReviewer = 'final_reviewer',
 }
 
 // User interface
 export interface User {
-  id: string
+  id?: string
   username: string
   email: string
-  role: UserRole
+  role?: UserRole
+  group?: string
   groupId?: string
   picture?: string
   createdAt?: Date
@@ -22,15 +23,16 @@ export interface CreateUserDTO {
   username: string
   email: string
   role?: UserRole
-  groupId?: string
+  group?: string
   picture?: string
 }
 
 // Request payload for updating users
 export interface UpdateUserDTO {
-  username?: string
-  role?: UserRole
-  groupId?: string
+  new_username?: string
+  new_email?: string
+  new_role?: UserRole
+  new_group?: string
 }
 
 // Paginated response wrapper

@@ -1,5 +1,18 @@
 @import 'tailwindcss';
 
+@font-face {
+	font-family: monlam;
+	src: url("/font/MonlamUniOuChan2.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: monlam-2;
+	src: url("/font/MonlamUniOuChan2.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
+
 @theme {
   /* Colors - Dark theme with cyan/teal accents */
   --color-background: oklch(0.145 0 0);

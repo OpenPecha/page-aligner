@@ -17,7 +17,7 @@ interface AuthProviderProps {
 
 // API call to create or fetch user
 async function syncUserWithBackend(userData: CreateUserDTO, token: string): Promise<User> {
-  const response = await fetch('/api/user', {
+  const response = await fetch('https://openpecha-annotation-tool-dev.web.app/api/user/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -49,7 +49,13 @@ const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isUserLoading, setIsUserLoading] = useState(false)
 
   // Combined loading state
-  const isLoading = auth0Loading || isUserLoading
+  // We consider it loading if Auth0 is loading, we are syncing the user,
+  // or if we are authenticated but haven't processed the user yet (race condition fix)
+  const isLoading = auth0Loading || isUserLoading || (isAuthenticated && !currentUser)
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/46c965a1-fad8-474e-9dac-9305e8b48950',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthProvider.tsx:50',message:'Auth Provider State',data:{isAuthenticated, auth0Loading, isUserLoading, currentUser, isLoading},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'auth-race'})}).catch(()=>{});
+  // #endregion
 
   // Set up API token getter when authenticated
   useEffect(() => {
@@ -71,9 +77,13 @@ const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const token = await getAccessTokenSilently()
 
         const userData: CreateUserDTO = {
-          name: auth0User.name || auth0User.nickname || auth0User.email,
-          email: auth0User.email,
-          picture: auth0User.picture,
+          // username: auth0User.nickname || auth0User.email,
+          // email: auth0User.email,
+          // role: UserRole.Admin
+          username: "tsering",
+          email: "karma@dharmaduta.in",
+          role: UserRole.Annotator,
+          group: "string",
         }
 
         const user = await syncUserWithBackend(userData, token)
@@ -85,11 +95,14 @@ const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error('Failed to sync user:', err)
         // Still set a basic user from Auth0 data
         setCurrentUser({
-          id: auth0User.sub || '',
-          name: auth0User.name || auth0User.nickname || auth0User.email,
-          email: auth0User.email,
-          role: UserRole.Admin, // Default role
-          picture: auth0User.picture,
+          // id: auth0User.sub || '',
+          // username: auth0User.nickname || auth0User.email,
+          // email: auth0User.email,
+          // role: UserRole.Admin, 
+          username: "tsering",
+          email: "karma@dharmaduta.in",
+          role: UserRole.Annotator,
+          group: "string",
         })
       } finally {
         setIsUserLoading(false)
@@ -149,17 +162,83 @@ const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
   )
 }
 
+// Dev mode mock provider for testing without Auth0
+const DevAuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Check for stored dev user
+    const storedUser = localStorage.getItem('dev_user')
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser))
+    }
+    setIsLoading(false)
+  }, [])
+
+  const login = useCallback(() => {
+    // Mock login with an annotator user for dev testing
+    const devUser: User = {
+      id: 'u2',
+      username: 'Pema Lhamo',
+      email: 'pema@example.com',
+      role: UserRole.Annotator,
+      groupId: 'g1',
+    }
+    localStorage.setItem('dev_user', JSON.stringify(devUser))
+    setCurrentUser(devUser)
+    window.location.href = '/workspace'
+  }, [])
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('dev_user')
+    setCurrentUser(null)
+    window.location.href = '/login'
+  }, [])
+
+  const getToken = useCallback(async () => 'dev-token', [])
+
+  const contextValue = useMemo(() => ({
+    isAuthenticated: !!currentUser,
+    isLoading,
+    currentUser,
+    login,
+    logout,
+    getToken,
+    error: null,
+  }), [currentUser, isLoading, login, logout, getToken])
+
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
 // Main provider that wraps everything with Auth0
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const domain = import.meta.env.VITE_AUTH0_DOMAIN
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID
   const audience = import.meta.env.VITE_AUTH0_AUDIENCE
   const redirectUri = import.meta.env.VITE_AUTH0_REDIRECT_URI || `${window.location.origin}/callback`
+  const useDevAuth = import.meta.env.VITE_DEV_AUTH === 'true'
+  
+  // Check if we should use dev auth (explicitly enabled, dev mode flag in URL, or Auth0 not configured)
+  const urlParams = new URLSearchParams(window.location.search)
+  const devModeFromUrl = urlParams.get('dev') === 'true'
+  const storedDevMode = localStorage.getItem('dev_auth_mode') === 'true'
 
-  // Validate required env vars
-  if (!domain || !clientId) {
-    console.error('Auth0 configuration missing. Please set VITE_AUTH0_DOMAIN and VITE_AUTH0_CLIENT_ID')
-    return <>{children}</>
+  // Persist dev mode if set via URL
+  if (devModeFromUrl && !storedDevMode) {
+    localStorage.setItem('dev_auth_mode', 'true')
+  }
+
+  const shouldUseDevAuth = useDevAuth || devModeFromUrl || storedDevMode || !domain || !clientId
+
+  // Use dev provider if enabled
+  if (shouldUseDevAuth) {
+    console.warn('Using dev auth provider.')
+    return <DevAuthProvider>{children}</DevAuthProvider>
   }
 
   return (

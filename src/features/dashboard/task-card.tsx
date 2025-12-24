@@ -27,7 +27,7 @@ export function TaskCard({
     if (onAction) {
       onAction(task)
     } else {
-      navigate(`/editor/${task.id}`)
+      navigate('/workspace')
     }
   }
 

@@ -1,46 +1,45 @@
-import { useQuery } from '@tanstack/react-query'
 import { StatsOverview, TaskList } from '@/features/dashboard'
-import { getTasks } from '@/services/api'
+import { useGetTasks } from '@/features/admin/api/task'
 import { useAuth } from '@/features/auth'
 import { UserRole, TaskStatus, ROLE_CONFIG } from '@/types'
 
 export function DashboardPage() {
   const { currentUser } = useAuth()
+  const { data: recentTasks, isLoading } = useGetTasks(currentUser?.username)
+  console.log("recentTasks", recentTasks)
 
-  const { data: recentTasks, isLoading } = useQuery({
-    queryKey: ['tasks', 'recent'],
-    queryFn: async () => {
-      const response = await getTasks()
-      return response.data?.slice(0, 8) || []
-    },
-  })
+  const tasks = recentTasks?.slice(0, 8) || []
 
   if (!currentUser) return null
+
+  const roleConfig = currentUser.role ? ROLE_CONFIG[currentUser.role] : null
 
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {currentUser.name.split(' ')[0]}
+          Welcome back, {currentUser.username}
         </h1>
-        <p className="text-muted-foreground mt-1">
-          {ROLE_CONFIG[currentUser.role].description}
-        </p>
+        {roleConfig && (
+          <p className="text-muted-foreground mt-1">
+            {roleConfig.description}
+          </p>
+        )}
       </div>
 
       {/* Stats Overview */}
-      <StatsOverview />
+      {/* <StatsOverview /> */}
 
       {/* Quick Actions based on role */}
       {currentUser.role === UserRole.Annotator && (
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Your Active Tasks</h2>
           <TaskList
-            tasks={recentTasks?.filter(t => 
+            tasks={tasks.filter(t => 
               t.assignedTo === currentUser.id && 
               (t.status === TaskStatus.InProgress || t.status === TaskStatus.Rejected)
-            ) || []}
+            )}
             isLoading={isLoading}
             emptyMessage="No active tasks. Check with your admin for new assignments."
             actionLabel="Continue"
@@ -52,10 +51,10 @@ export function DashboardPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Tasks Awaiting Review</h2>
           <TaskList
-            tasks={recentTasks?.filter(t => 
+            tasks={tasks.filter(t => 
               t.status === TaskStatus.AwaitingReview || 
               (t.status === TaskStatus.InReview && t.reviewerId === currentUser.id)
-            ) || []}
+            )}
             isLoading={isLoading}
             emptyMessage="No tasks awaiting review."
             actionLabel="Review"
@@ -67,10 +66,10 @@ export function DashboardPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Tasks Awaiting Final Review</h2>
           <TaskList
-            tasks={recentTasks?.filter(t => 
+            tasks={tasks.filter(t => 
               t.status === TaskStatus.AwaitingFinalReview || 
               (t.status === TaskStatus.FinalReview && t.finalReviewerId === currentUser.id)
-            ) || []}
+            )}
             isLoading={isLoading}
             emptyMessage="No tasks awaiting final review."
             actionLabel="Final Review"
@@ -82,7 +81,7 @@ export function DashboardPage() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Recent Activity</h2>
           <TaskList
-            tasks={recentTasks || []}
+            tasks={tasks}
             isLoading={isLoading}
             emptyMessage="No tasks in the system yet."
             actionLabel="View"

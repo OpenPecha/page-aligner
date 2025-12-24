@@ -93,6 +93,17 @@ export interface AssignTaskRequest {
   userId: string
 }
 
+// Assigned task from real backend API
+export interface AssignedTask {
+  task_id: string
+  task_name: string
+  task_url: string
+  task_transcript: string
+  state: 'annotating' | 'submitted' | 'reviewing' | 'completed' | 'trashed'
+  batch_name: string
+  group: string
+}
+
 // Task submission request
 export interface SubmitTaskRequest {
   taskId: string

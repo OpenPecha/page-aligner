@@ -37,7 +37,7 @@ export function UserList() {
     limit: PAGE_SIZE,
   })
 
-  const users = data?.data ?? []
+  const users = data ?? []
   const total = data?.total ?? 0
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
@@ -112,7 +112,7 @@ export function UserList() {
             ) : (
               <div className={isFetching ? 'opacity-60' : ''}>
                 {users.map((user) => (
-                  <UserItem key={user.id} user={user} groups={groups} />
+                  <UserItem key={user.username} user={user} groups={groups} />
                 ))}
               </div>
             )}

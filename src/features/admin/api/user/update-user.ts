@@ -5,12 +5,12 @@ import { userKeys } from './user-keys'
 import { groupKeys } from '../group/group-keys'
 
 interface UpdateUserParams {
-  id: string
+  username: string
   data: UpdateUserDTO
 }
 
-const updateUser = async ({ id, data }: UpdateUserParams): Promise<User> => {
-  return apiClient.patch(`/users/${id}`, data)
+const updateUser = async ({ username, data }: UpdateUserParams): Promise<User> => {
+  return apiClient.put(`/user/${username}`, data)
 }
 
 export const useUpdateUser = () => {

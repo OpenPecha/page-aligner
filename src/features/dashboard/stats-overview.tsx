@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 import {
   Clock,
   PlayCircle,
@@ -9,7 +8,6 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getDashboardStats, getAnnotatorStats } from '@/services/api'
 import { useAuth } from '@/features/auth'
 import { UserRole } from '@/types'
 
@@ -58,18 +56,13 @@ export function StatsOverview() {
 
   const isAnnotator = currentUser?.role === UserRole.Annotator
 
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboard-stats', currentUser?.id, isAnnotator],
-    queryFn: async () => {
-      if (isAnnotator && currentUser) {
-        const response = await getAnnotatorStats(currentUser.id)
-        return response.data
-      }
-      const response = await getDashboardStats()
-      return response.data
-    },
-    enabled: !!currentUser,
-  })
+  const { data: dashboardStats, isLoading: isDashboardLoading } = useGetDashboardStats()
+  const { data: annotatorStats, isLoading: isAnnotatorLoading } = useGetAnnotatorStats(
+    isAnnotator ? currentUser?.id ?? '' : ''
+  )
+
+  const stats = isAnnotator ? annotatorStats : dashboardStats
+  const isLoading = isAnnotator ? isAnnotatorLoading : isDashboardLoading
 
   if (isLoading) {
     return (

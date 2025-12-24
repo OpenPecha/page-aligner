@@ -29,19 +29,20 @@ export function UserDialog({ open, onOpenChange, user }: UserDialogProps) {
     try {
       if (isEditing && user) {
         await updateUser.mutateAsync({
-          id: user.id,
+          username: user.username,
           data: {
-            name: data.name,
-            role: data.role,
-            groupId: data.groupId || undefined,
+            ...(data.username ? { new_username: data.username } : {}),
+            ...(data.email ? { new_email: data.email } : {}),
+            ...(data.role ? { new_role: data.role } : {}),
+            ...(data.group ? { new_group: data.group } : {}),
           },
         })
       } else {
         await createUser.mutateAsync({
-          name: data.name,
+          username: data.username,
           email: data.email,
-          role: data.role,
-          groupId: data.groupId || undefined,
+          role: data?.role,
+          group: data?.group,
         })
       }
       onOpenChange(false)
@@ -52,10 +53,10 @@ export function UserDialog({ open, onOpenChange, user }: UserDialogProps) {
 
   const defaultValues: Partial<UserFormData> | undefined = user
     ? {
-        name: user.name,
+        username: user.username,
         email: user.email,
         role: user.role,
-        groupId: user.groupId ?? '',
+        group: user.group ?? '',
       }
     : undefined
 
@@ -72,7 +73,7 @@ export function UserDialog({ open, onOpenChange, user }: UserDialogProps) {
         </DialogHeader>
 
         <UserForm
-          key={user?.id ?? 'new'}
+          key={user?.username ?? 'new'}
           defaultValues={defaultValues}
           groups={groups}
           onSubmit={handleSubmit}

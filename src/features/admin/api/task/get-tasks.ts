@@ -3,30 +3,15 @@ import { apiClient } from '@/lib/axios';
 import type { Task } from '@/types';
 import { taskKeys } from './task-keys';
 
-interface GetTasksParams {
-  status?: string;
-  groupId?: string;
-  search?: string;
-}
-
-const getTasks = async (params?: GetTasksParams): Promise<Task[]> => {
-  const searchParams = new URLSearchParams();
-  
-  if (params?.status) searchParams.set('status', params.status);
-  if (params?.groupId) searchParams.set('groupId', params.groupId);
-  if (params?.search) searchParams.set('search', params.search);
-
-  const queryString = searchParams.toString();
-  const url = queryString ? `/tasks?${queryString}` : '/tasks';
-  
-  return apiClient.get(url);
+const getTasks = async (username: string): Promise<Task[]> => {
+  return apiClient.get(`/tasks/assign/${username}`);
 };
 
-export const useGetTasks = (params?: GetTasksParams) => {
+export const useGetTasks = (username: string) => {
+  console.log("username", username)
   return useQuery({
-    queryKey: taskKeys.list(params),
-    queryFn: () => getTasks(params),
-    staleTime: 1000 * 60 * 2,
+    queryKey: taskKeys.list(username),
+    queryFn: () => getTasks(username),
     retry: 1,
   });
 };

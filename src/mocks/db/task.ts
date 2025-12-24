@@ -110,9 +110,19 @@ const createSampleHistory = (status: TaskStatus): TaskHistoryEntry[] => {
   return history
 }
 
+// More sample noisy texts for batch tasks
+const additionalNoisyTexts = [
+  `The 0cean covers m0re than 70% of the Earth's surface. lt contains 97% of a11 water on Earth and produces more than ha1f of the w0r1d's oxygen.`,
+  `M0zart began composing at the age of five. By the time he was seventeen, he had written over 200 w0rks including symph0nies, operas, and chamber music.`,
+  `The G0lden Gate Bridge in San Francisc0 was completed in 1937. lt spans 1.7 mi1es and was the 1ongest suspension bridge in the w0r1d at that time.`,
+  `Honey is the 0nly f00d that never sp0i1s. Archaeo1ogists have found 3,000-year-o1d honey in Egyptian tombs that was sti11 edib1e.`,
+  `Mount Everest gr0ws approximately 4 mi11imeters ta11er each year due to ge0logical forces pushing the Hima1ayan mountain range upward.`,
+  `The human heart beats approximate1y 100,000 times per day, pumping about 2,000 ga11ons of b100d through near1y 60,000 mi1es of b100d vesse1s.`,
+]
+
 // Initialize sample tasks
 export const tasks: Task[] = [
-  // Pending tasks
+  // Pending tasks for batch testing
   {
     id: 'task_001',
     imageUrl: 'https://www.cam.ac.uk/files/inner-images/140710-buddhas-word-manuscript3.jpg',
@@ -140,6 +150,91 @@ export const tasks: Task[] = [
     history: createSampleHistory(TaskStatus.Pending),
     createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
     updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+  },
+  // Additional pending tasks for batch (tasks 10-15)
+  {
+    id: 'task_010',
+    imageUrl: 'https://picsum.photos/seed/doc10/800/600',
+    imageId: 'IMG_010',
+    imageOrder: 10,
+    noisyText: additionalNoisyTexts[0],
+    correctedText: '',
+    status: TaskStatus.Pending,
+    groupId: 'g1',
+    batchName: 'Batch 3',
+    history: createSampleHistory(TaskStatus.Pending),
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+  },
+  {
+    id: 'task_011',
+    imageUrl: 'https://picsum.photos/seed/doc11/800/600',
+    imageId: 'IMG_011',
+    imageOrder: 11,
+    noisyText: additionalNoisyTexts[1],
+    correctedText: '',
+    status: TaskStatus.Pending,
+    groupId: 'g1',
+    batchName: 'Batch 3',
+    history: createSampleHistory(TaskStatus.Pending),
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+  },
+  {
+    id: 'task_012',
+    imageUrl: 'https://picsum.photos/seed/doc12/800/600',
+    imageId: 'IMG_012',
+    imageOrder: 12,
+    noisyText: additionalNoisyTexts[2],
+    correctedText: '',
+    status: TaskStatus.Pending,
+    groupId: 'g1',
+    batchName: 'Batch 3',
+    history: createSampleHistory(TaskStatus.Pending),
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+  },
+  {
+    id: 'task_013',
+    imageUrl: 'https://picsum.photos/seed/doc13/800/600',
+    imageId: 'IMG_013',
+    imageOrder: 13,
+    noisyText: additionalNoisyTexts[3],
+    correctedText: '',
+    status: TaskStatus.Pending,
+    groupId: 'g1',
+    batchName: 'Batch 3',
+    history: createSampleHistory(TaskStatus.Pending),
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+  },
+  {
+    id: 'task_014',
+    imageUrl: 'https://picsum.photos/seed/doc14/800/600',
+    imageId: 'IMG_014',
+    imageOrder: 14,
+    noisyText: additionalNoisyTexts[4],
+    correctedText: '',
+    status: TaskStatus.Pending,
+    groupId: 'g1',
+    batchName: 'Batch 3',
+    history: createSampleHistory(TaskStatus.Pending),
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+  },
+  {
+    id: 'task_015',
+    imageUrl: 'https://picsum.photos/seed/doc15/800/600',
+    imageId: 'IMG_015',
+    imageOrder: 15,
+    noisyText: additionalNoisyTexts[5],
+    correctedText: '',
+    status: TaskStatus.Pending,
+    groupId: 'g1',
+    batchName: 'Batch 3',
+    history: createSampleHistory(TaskStatus.Pending),
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
   },
   // In Progress tasks
   {

@@ -38,20 +38,20 @@ export function UserItem({ user, groups }: UserItemProps) {
     if (newRole === user.role) return
     try {
       await updateUser.mutateAsync({
-        id: user.id,
-        data: { role: newRole as UserRole },
+        username: user.username,
+        data: { new_role: newRole as UserRole },
       })
     } catch (error) {
       console.error('Failed to update role:', error)
     }
   }
 
-  const handleGroupChange = async (newGroupId: string) => {
-    if (newGroupId === user.groupId) return
+  const handleGroupChange = async (newGroup: string) => {
+    if (newGroup === user.group) return
     try {
       await updateUser.mutateAsync({
-        id: user.id,
-        data: { groupId: newGroupId || undefined },
+        username: user.username,
+        data: { new_group: newGroup || undefined },
       })
     } catch (error) {
       console.error('Failed to update group:', error)
@@ -64,9 +64,9 @@ export function UserItem({ user, groups }: UserItemProps) {
         {/* Name & Email */}
         <div className="flex items-center gap-3 min-w-0">
           <Avatar className="h-10 w-10 shrink-0">
-            <AvatarImage src={user.picture} alt={user.name} />
+            <AvatarImage src={user.picture} alt={user.username} />
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
-              {getInitials(user.email)}
+              {getInitials(user.username)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
@@ -107,7 +107,7 @@ export function UserItem({ user, groups }: UserItemProps) {
           </SelectTrigger>
           <SelectContent>
             {groups.map((group) => (
-              <SelectItem key={group.id} value={group.id}>
+              <SelectItem key={group.name} value={group.name}>
                 {group.name}
               </SelectItem>
             ))}

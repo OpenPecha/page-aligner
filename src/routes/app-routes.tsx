@@ -7,13 +7,10 @@ import { UserRole } from '@/types'
 import { LoginPage } from '@/pages/auth/login-page'
 import { CallbackPage } from '@/pages/auth/callback-page'
 import { DashboardPage } from '@/pages/dashboard-page'
-import { AnnotatorTasksPage } from '@/pages/annotator/annotator-tasks-page'
-import { ReviewerQueuePage } from '@/pages/reviewer/reviewer-queue-page'
-import { FinalReviewerQueuePage } from '@/pages/final-reviewer/final-reviewer-queue-page'
 import { AdminUsersPage } from '@/pages/admin/admin-users-page'
 import { AdminTasksPage } from '@/pages/admin/admin-tasks-page'
 import { AdminGroupsPage } from '@/pages/admin/admin-groups-page'
-import { EditorPage } from '@/pages/workspace/editor-page'
+import { WorkspacePage } from '@/pages/workspace/workspace-page'
 import { NotFoundPage } from '@/pages/not-found'
 
 export const router = createBrowserRouter([
@@ -31,7 +28,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-
   // Protected routes
   {
     element: (
@@ -42,35 +38,11 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Navigate to="/dashboard" replace />,
+        element: <Navigate to="/workspace" replace />,
       },
       {
         path: '/dashboard',
         element: <DashboardPage />,
-      },
-      {
-        path: '/tasks',
-        element: (
-          <ProtectedRoute allowedRoles={[UserRole.Annotator, UserRole.Admin]}>
-            <AnnotatorTasksPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: '/review',
-        element: (
-          <ProtectedRoute allowedRoles={[UserRole.Reviewer, UserRole.Admin]}>
-            <ReviewerQueuePage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: '/final-review',
-        element: (
-          <ProtectedRoute allowedRoles={[UserRole.FinalReviewer, UserRole.Admin]}>
-            <FinalReviewerQueuePage />
-          </ProtectedRoute>
-        ),
       },
       {
         path: '/admin/users',
@@ -97,10 +69,6 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: '/editor/:taskId',
-        element: <EditorPage />,
-      },
-      {
         path: '/settings',
         element: (
           <div className="flex items-center justify-center h-[50vh]">
@@ -109,6 +77,16 @@ export const router = createBrowserRouter([
         ),
       },
     ],
+  },
+
+  // Workspace route (has its own layout)
+  {
+    path: '/workspace',
+    element: (
+      <ProtectedRoute allowedRoles={[UserRole.Annotator, UserRole.Reviewer, UserRole.FinalReviewer, UserRole.Admin]}>
+        <WorkspacePage />
+      </ProtectedRoute>
+    ),
   },
 
   // 404

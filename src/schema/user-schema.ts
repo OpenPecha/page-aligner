@@ -2,7 +2,7 @@ import z from 'zod'
 import { UserRole } from '@/types'
 
 export const userSchema = z.object({
-  name: z
+  username: z
     .string()
     .min(2, 'Name must be at least 2 characters')
     .max(100, 'Name must be less than 100 characters'),
@@ -12,7 +12,7 @@ export const userSchema = z.object({
   role: z.nativeEnum(UserRole, {
     message: 'Please select a role',
   }),
-  groupId: z
+  group: z
     .string()
     .optional(),
 })

@@ -30,13 +30,13 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-    roles: [UserRole.Admin, UserRole.Annotator, UserRole.Reviewer, UserRole.FinalReviewer],
+    roles: [UserRole.Admin],
   },
   {
-    label: 'My Tasks',
-    href: '/tasks',
+    label: 'Workspace',
+    href: '/workspace',
     icon: FileText,
-    roles: [UserRole.Annotator],
+    roles: [UserRole.Annotator, UserRole.Reviewer, UserRole.FinalReviewer],
   },
   {
     label: 'Review Queue',
@@ -77,20 +77,11 @@ export function Sidebar() {
   if (!currentUser) return null
 
   const filteredNavItems = navItems.filter((item) =>
-    item.roles.includes(currentUser.role)
+    currentUser.role && item.roles.includes(currentUser.role)
   )
 
   const handleLogout = () => {
     logout()
-  }
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
   }
 
   return (
@@ -147,7 +138,6 @@ export function Sidebar() {
           </NavLink>
         ))}
       </nav>
-
       <Separator className="bg-sidebar-border" />
 
       {/* User Profile */}
@@ -159,15 +149,15 @@ export function Sidebar() {
           )}
         >
           <Avatar className="h-9 w-9 shrink-0">
-            <AvatarImage src={currentUser.picture} alt={currentUser.name} />
+            <AvatarImage src={currentUser.picture} alt={currentUser.username} />
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-              {getInitials(currentUser.name)}
+            {currentUser.username}
             </AvatarFallback>
           </Avatar>
           {!sidebarCollapsed && (
             <div className="flex-1 overflow-hidden">
               <p className="truncate text-sm font-medium text-sidebar-foreground">
-                {currentUser.name}
+                {currentUser.username}
               </p>
               <p className="truncate text-xs text-muted-foreground">
                 {ROLE_CONFIG[currentUser.role]?.label}
