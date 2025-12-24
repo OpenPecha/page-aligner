@@ -91,7 +91,7 @@ export function GroupUserList({ users, groupId, isLoading }: GroupUserListProps)
             <Avatar className="h-8 w-8">
               <AvatarImage src={user.picture} alt={user.username} />
               <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                {getInitials(user.username)}
+                {getInitials(user.username ?? '')}
               </AvatarFallback>
             </Avatar>
             <div>

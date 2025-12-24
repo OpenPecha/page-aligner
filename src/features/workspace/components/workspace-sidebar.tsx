@@ -164,9 +164,9 @@ export function WorkspaceSidebar({
       <div className="p-3">
         <div className="flex items-center gap-3 rounded-lg p-2">
           <Avatar className="h-10 w-10 shrink-0 ring-2 ring-success">
-            <AvatarImage src={currentUser.picture} alt={currentUser.username} />
+            <AvatarImage src={currentUser.picture} alt={currentUser.username ?? ''} />
             <AvatarFallback className="bg-success text-success-foreground text-sm font-semibold">
-              {currentUser.username.slice(0, 2).toUpperCase()}
+              {(currentUser.username ?? '').slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 overflow-hidden">

@@ -27,8 +27,10 @@ export function BatchList() {
   const batches = useMemo(() => {
     const groupMap = new Map(groups.map((g) => [g.id, g]))
     const batchMap = new Map<string, BatchData>()
-    return []
-    tasks?.forEach((task) => {
+
+    if (!Array.isArray(tasks)) return []
+
+    tasks.forEach((task) => {
       const batchKey = task.batchName || 'Unassigned'
       
       if (!batchMap.has(batchKey)) {

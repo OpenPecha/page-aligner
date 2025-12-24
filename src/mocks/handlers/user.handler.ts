@@ -78,7 +78,7 @@ export const userHandlers = [
 
     if (search) {
       filteredUsers = filteredUsers.filter((user) =>
-        user.username.toLowerCase().includes(search)
+        (user.username ?? '').toLowerCase().includes(search)
       )
     }
 

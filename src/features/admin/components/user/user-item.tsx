@@ -38,7 +38,7 @@ export function UserItem({ user, groups }: UserItemProps) {
     if (newRole === user.role) return
     try {
       await updateUser.mutateAsync({
-        username: user.username,
+        username: user.username!,
         data: { new_role: newRole as UserRole },
       })
     } catch (error) {
@@ -50,7 +50,7 @@ export function UserItem({ user, groups }: UserItemProps) {
     if (newGroup === user.group) return
     try {
       await updateUser.mutateAsync({
-        username: user.username,
+        username: user.username!,
         data: { new_group: newGroup || undefined },
       })
     } catch (error) {
@@ -66,7 +66,7 @@ export function UserItem({ user, groups }: UserItemProps) {
           <Avatar className="h-10 w-10 shrink-0">
             <AvatarImage src={user.picture} alt={user.username} />
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
-              {getInitials(user.username)}
+              {getInitials(user.username ?? '')}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">

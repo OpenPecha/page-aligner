@@ -29,7 +29,7 @@ export function UserDialog({ open, onOpenChange, user }: UserDialogProps) {
     try {
       if (isEditing && user) {
         await updateUser.mutateAsync({
-          username: user.username,
+          username: user.username!,
           data: {
             ...(data.username ? { new_username: data.username } : {}),
             ...(data.email ? { new_email: data.email } : {}),

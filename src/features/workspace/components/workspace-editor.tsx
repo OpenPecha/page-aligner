@@ -45,7 +45,7 @@ export function WorkspaceEditor() {
   const approveTask = useApproveTask(currentUser?.username)
   const rejectTask = useRejectTask(currentUser?.username)
   const hasUnsavedChanges = text !== initialText
-  const canEdit = task?.state === 'annotating' || task?.state === 'reviewing' || task?.state === 'finalising'
+  const canEdit = task?.state === 'annotating' || task?.state === 'reviewing'
 
   // Track task ID to detect task changes
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
@@ -66,7 +66,7 @@ export function WorkspaceEditor() {
     if (!task || !currentUser) return
 
     submitTask.mutate(
-      { task_id: task.task_id, username: currentUser.username, transcript: text, submit: true },
+      { task_id: task.task_id, username: currentUser.username!, transcript: text, submit: true },
       {
         onSuccess: () => {
           addToast({
@@ -94,7 +94,7 @@ export function WorkspaceEditor() {
     if (!task || !currentUser) return
 
     trashTask.mutate(
-      { task_id: task.task_id, username: currentUser.username, submit: false },
+      { task_id: task.task_id, username: currentUser.username!, submit: false },
       {
         onSuccess: () => {
           setTrashDialogOpen(false)
@@ -118,7 +118,7 @@ export function WorkspaceEditor() {
     if (!task || !currentUser) return
 
     approveTask.mutate(
-      { task_id: task.task_id, username: currentUser.username, transcript: text, approve: true },
+      { task_id: task.task_id, username: currentUser.username!, transcript: text, approve: true },
       {
         onSuccess: () => {
           addToast({
@@ -145,7 +145,7 @@ export function WorkspaceEditor() {
     if (!task || !currentUser) return
 
     rejectTask.mutate(
-      { task_id: task.task_id, username: currentUser.username, transcript: text, reject: true },
+      { task_id: task.task_id, username: currentUser.username!, transcript: text, reject: true },
       {
         onSuccess: () => {
           addToast({ title: 'Task rejected', variant: 'default' })

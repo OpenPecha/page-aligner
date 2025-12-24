@@ -62,7 +62,7 @@ export const workspaceHandlers = [
     task.status = TaskStatus.AwaitingReview
     task.updatedAt = new Date()
     task.history.push(
-      createHistoryEntry(TaskAction.Submitted, user.id ?? '', user.username, previousStatus, task.status)
+      createHistoryEntry(TaskAction.Submitted, user.id ?? '', user.username ?? '', previousStatus, task.status)
     )
 
     return HttpResponse.json(task)
@@ -105,7 +105,7 @@ export const workspaceHandlers = [
     task.status = TaskStatus.Rejected
     task.updatedAt = new Date()
     task.history.push(
-      createHistoryEntry(action, reviewer.id ?? '', reviewer.username, previousStatus, task.status, comment)
+      createHistoryEntry(action, reviewer.id ?? '', reviewer.username ?? '', previousStatus, task.status, comment)
     )
 
     return HttpResponse.json(task)
@@ -166,11 +166,11 @@ export const workspaceHandlers = [
       batchTasks.forEach(task => {
         if (task.status === TaskStatus.Pending && !task.assignedTo) {
           task.assignedTo = String(userId)
-          task.assignedToName = user.username
+          task.assignedToName = user.username ?? ''
           task.status = TaskStatus.InProgress
           task.updatedAt = new Date()
           task.history.push(
-            createHistoryEntry(TaskAction.Assigned, user.id ?? '', user.username, TaskStatus.Pending, TaskStatus.InProgress)
+            createHistoryEntry(TaskAction.Assigned, user.id ?? '', user.username ?? '', TaskStatus.Pending, TaskStatus.InProgress)
           )
         }
       })
@@ -223,7 +223,7 @@ export const workspaceHandlers = [
     task.correctedText = ''
     task.updatedAt = new Date()
     task.history.push(
-      createHistoryEntry(TaskAction.Reassigned, user.id ?? '', user.username, previousStatus, TaskStatus.Pending, 'Task marked as trash')
+      createHistoryEntry(TaskAction.Reassigned, user.id ?? '', user.username ?? '', previousStatus, TaskStatus.Pending, 'Task marked as trash')
     )
 
     return HttpResponse.json(task)
@@ -254,7 +254,7 @@ export const workspaceHandlers = [
     task.status = TaskStatus.InProgress
     task.updatedAt = new Date()
     task.history.push(
-      createHistoryEntry(TaskAction.Started, user.id ?? '', user.username, previousStatus, TaskStatus.InProgress, 'Task reopened for editing')
+      createHistoryEntry(TaskAction.Started, user.id ?? '', user.username ?? '', previousStatus, TaskStatus.InProgress, 'Task reopened for editing')
     )
 
     return HttpResponse.json(task)
