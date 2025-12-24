@@ -34,7 +34,8 @@ export function DeleteUserDialog({
     setError(null)
 
     try {
-      await deleteUser.mutateAsync(user.id)
+      if (!user.username) return
+      await deleteUser.mutateAsync(user.username)
       onOpenChange(false)
     } catch (err) {
       setError('Failed to delete user. Please try again.')
@@ -53,7 +54,7 @@ export function DeleteUserDialog({
             Delete User
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete <strong>{user.name}</strong>? This
+            Are you sure you want to delete <strong>{user.username}</strong>? This
             action cannot be undone.
           </DialogDescription>
         </DialogHeader>

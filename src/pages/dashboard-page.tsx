@@ -1,4 +1,4 @@
-import { StatsOverview, TaskList } from '@/features/dashboard'
+import { TaskList } from '@/features/dashboard'
 import { useGetTasks } from '@/features/admin/api/task'
 import { useAuth } from '@/features/auth'
 import { UserRole, TaskStatus, ROLE_CONFIG } from '@/types'
@@ -29,7 +29,6 @@ export function DashboardPage() {
       </div>
 
       {/* Stats Overview */}
-      {/* <StatsOverview /> */}
 
       {/* Quick Actions based on role */}
       {currentUser.role === UserRole.Annotator && (

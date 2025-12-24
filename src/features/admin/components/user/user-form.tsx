@@ -40,28 +40,28 @@ export function UserForm({
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      name: defaultValues?.name ?? '',
+      username: defaultValues?.username ?? '',
       email: defaultValues?.email ?? '',
       role: defaultValues?.role ?? UserRole.Annotator,
-      groupId: defaultValues?.groupId ?? '',
+      group: defaultValues?.group ?? '',
     },
   })
 
   const selectedRole = watch('role')
-  const selectedGroupId = watch('groupId')
+  const selectedGroup = watch('group')
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name">User name</Label>
+        <Label htmlFor="username">User name</Label>
         <Input
-          id="name"
+          id="username"
           placeholder="Enter user name"
-          {...register('name')}
+          {...register('username')}
           disabled={isSubmitting}
         />
-        {errors.name && (
-          <p className="text-sm text-destructive">{errors.name.message}</p>
+        {errors.username && (
+          <p className="text-sm text-destructive">{errors.username.message}</p>
         )}
       </div>
 
@@ -105,8 +105,8 @@ export function UserForm({
       <div className="space-y-2">
         <Label htmlFor="group">Group</Label>
         <Select
-          value={selectedGroupId}
-          onValueChange={(value) => setValue('groupId', value)}
+          value={selectedGroup}
+          onValueChange={(value) => setValue('group', value)}
           disabled={isSubmitting}
         >
           <SelectTrigger id="group">
@@ -120,8 +120,8 @@ export function UserForm({
             ))}
           </SelectContent>
         </Select>
-        {errors.groupId && (
-          <p className="text-sm text-destructive">{errors.groupId.message}</p>
+        {errors.group && (
+          <p className="text-sm text-destructive">{errors.group.message}</p>
         )}
       </div>
 
