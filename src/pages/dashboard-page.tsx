@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, FileText, Layers } from 'lucide-react'
-import { useGetTask } from '@/features/admin/api/task'
+import { useGetAssignedTask } from '@/features/workspace/api'
 import { useAuth } from '@/features/auth'
 import { ROLE_CONFIG } from '@/types'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
@@ -51,7 +51,7 @@ function EmptyTaskState() {
 export function DashboardPage() {
   const navigate = useNavigate()
   const { currentUser } = useAuth()
-  const { data: task, isLoading } = useGetTask(currentUser?.username ?? '')
+  const { data: task, isLoading } = useGetAssignedTask(currentUser?.username)
 
   if (!currentUser) return null
 
