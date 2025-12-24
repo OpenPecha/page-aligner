@@ -3,40 +3,41 @@ import { workspaceKeys } from './workspace-keys'
 
 const BASE_URL = 'https://openpecha-annotation-tool-dev.web.app/api'
 
-interface TrashTaskRequest {
+interface RejectTaskParams {
   task_id: string
   username: string
-  submit: boolean
+  transcript: string
+  reject: boolean
 }
 
-interface TrashTaskResponse {
+interface RejectTaskResponse {
   success: boolean
   message?: string
 }
 
-const trashTask = async (params: TrashTaskRequest): Promise<TrashTaskResponse> => {
+const rejectTask = async (params: RejectTaskParams): Promise<RejectTaskResponse> => {
   const response = await fetch(`${BASE_URL}/tasks/submit/${params.task_id}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'accept': 'application/json',
     },
-    body: JSON.stringify({username: params.username, submit: params.submit}),
+    body: JSON.stringify({username: params.username,transcript: params.transcript, submit: params.reject}),
   })
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Trash failed' }))
-    throw new Error(error.message || 'Trash failed')
+    const error = await response.json().catch(() => ({ message: 'Reject failed' }))
+    throw new Error(error.message || 'Reject failed')
   }
 
   return response.json()
 }
 
-export const useTrashTask = (username?: string) => {
+export const useRejectTask = (username?: string) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: trashTask,
+    mutationFn: rejectTask,
     onSuccess: () => {
       if (username) {
         queryClient.invalidateQueries({ queryKey: workspaceKeys.assignedTask(username) })

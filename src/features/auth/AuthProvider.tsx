@@ -9,28 +9,16 @@ import { Auth0Provider, useAuth0 } from '@auth0/auth0-react'
 import { setAuthTokenGetter } from '@/lib/auth'
 import { AuthContext } from './auth-context'
 import { UserRole } from '@/types'
-import type { User, CreateUserDTO } from '@/types'
-
+import type { User } from '@/types'
+import { apiClient } from '@/lib/axios'
 interface AuthProviderProps {
   children: ReactNode
 }
 
 // API call to create or fetch user
-async function syncUserWithBackend(userData: CreateUserDTO, token: string): Promise<User> {
-  const response = await fetch('https://openpecha-annotation-tool-dev.web.app/api/user/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(userData),
-  })
+async function getUserDetails(email: string): Promise<User> {
+  return await apiClient.get(`/user/${email}`)
 
-  if (!response.ok) {
-    throw new Error('Failed to sync user with backend')
-  }
-
-  return response.json()
 }
 
 // Inner provider that uses Auth0 hooks
@@ -76,33 +64,16 @@ const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const token = await getAccessTokenSilently()
 
-        const userData: CreateUserDTO = {
-          // username: auth0User.nickname || auth0User.email,
-          // email: auth0User.email,
-          // role: UserRole.Admin
-          username: "tsering",
-          email: "karma@dharmaduta.in",
-          role: UserRole.Annotator,
-          group: "string",
-        }
-
-        const user = await syncUserWithBackend(userData, token)
+        const user = await getUserDetails(auth0User.email)
         setCurrentUser(user)
 
         // Store token for API calls
         localStorage.setItem('auth_token', token)
       } catch (err) {
         console.error('Failed to sync user:', err)
-        // Still set a basic user from Auth0 data
         setCurrentUser({
-          // id: auth0User.sub || '',
-          // username: auth0User.nickname || auth0User.email,
-          // email: auth0User.email,
-          // role: UserRole.Admin, 
-          username: "tsering",
-          email: "karma@dharmaduta.in",
-          role: UserRole.Annotator,
-          group: "string",
+          email: auth0User.email,
+          role:undefined,
         })
       } finally {
         setIsUserLoading(false)
@@ -171,9 +142,12 @@ const DevAuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Check for stored dev user
     const storedUser = localStorage.getItem('dev_user')
     if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser))
+      const user = JSON.parse(storedUser)
+      setTimeout(() => {
+        setCurrentUser(user)
+        setIsLoading(false)
+      }, 0)
     }
-    setIsLoading(false)
   }, [])
 
   const login = useCallback(() => {

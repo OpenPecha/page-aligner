@@ -10,6 +10,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { currentUser, isAuthenticated, isLoading } = useAuth()
+  console.log("currentUser", currentUser)
   const location = useLocation()
 
   // #region agent log
@@ -32,9 +33,15 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
      // #endregion
     return <Navigate to="/login" state={{ from: location }} replace />
   }
+  console.log("currentUser", currentUser)
+
+  // User has no role assigned - redirect to pending approval
+  if (!currentUser.role) {
+    return <Navigate to="/pending-approval" replace />
+  }
 
   // Check role-based access
-  if (allowedRoles && currentUser.role && !allowedRoles.includes(currentUser.role)) {
+  if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
     // Redirect to their default dashboard
     // #region agent log
     fetch('http://127.0.0.1:7242/ingest/46c965a1-fad8-474e-9dac-9305e8b48950',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'protected-route.tsx:35',message:'Redirecting to dashboard (role)',data:{userRole: currentUser.role, allowedRoles},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'auth-race'})}).catch(()=>{});

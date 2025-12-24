@@ -12,11 +12,16 @@ import {
   useGetAssignedTask,
   useSubmitTask,
   useTrashTask,
+  useApproveTask,
+  useRejectTask,
 } from '../api'
 import { cn } from '@/lib/utils'
+import { UserRole } from '@/types'
 
 export function WorkspaceEditor() {
   const { currentUser } = useAuth()
+  console.log('currentUser', currentUser?.role)
+  console.log("role", UserRole.Reviewer)
   const { addToast } = useUIStore()
 
   // State
@@ -37,9 +42,10 @@ export function WorkspaceEditor() {
 
   const submitTask = useSubmitTask(currentUser?.username)
   const trashTask = useTrashTask(currentUser?.username)
-
+  const approveTask = useApproveTask(currentUser?.username)
+  const rejectTask = useRejectTask(currentUser?.username)
   const hasUnsavedChanges = text !== initialText
-  const canEdit = task?.state === 'annotating'
+  const canEdit = task?.state === 'annotating' || task?.state === 'reviewing' || task?.state === 'finalising'
 
   // Track task ID to detect task changes
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
@@ -88,7 +94,7 @@ export function WorkspaceEditor() {
     if (!task || !currentUser) return
 
     trashTask.mutate(
-      { taskId: task.task_id, username: currentUser.username },
+      { task_id: task.task_id, username: currentUser.username, submit: false },
       {
         onSuccess: () => {
           setTrashDialogOpen(false)
@@ -106,6 +112,55 @@ export function WorkspaceEditor() {
       }
     )
   }, [task, currentUser, trashTask, addToast, refetch])
+
+  // Approve handler
+  const handleApprove = useCallback(() => {
+    if (!task || !currentUser) return
+
+    approveTask.mutate(
+      { task_id: task.task_id, username: currentUser.username, transcript: text, approve: true },
+      {
+        onSuccess: () => {
+          addToast({
+            title: 'Task approved',
+            description: 'The task has been approved successfully',
+            variant: 'success',
+          })
+          setInitialText(text)
+          refetch()
+        },
+        onError: (error: Error) => {
+          addToast({
+            title: 'Failed to approve task',
+            description: error.message,
+            variant: 'destructive',
+          })
+        },
+      }
+    )
+  }, [task, currentUser, text, approveTask, addToast, refetch])
+
+  // Reject handler
+  const handleReject = useCallback(() => {
+    if (!task || !currentUser) return
+
+    rejectTask.mutate(
+      { task_id: task.task_id, username: currentUser.username, transcript: text, reject: true },
+      {
+        onSuccess: () => {
+          addToast({ title: 'Task rejected', variant: 'default' })
+          refetch()
+        },
+        onError: (error: Error) => {
+          addToast({
+            title: 'Failed to reject task',
+            description: error.message,
+            variant: 'destructive',
+          })
+        },
+      }
+    )
+  }, [task, currentUser, text, rejectTask, addToast, refetch])
 
   // Split pane handlers
   const handleMouseDown = useCallback(() => {
@@ -251,6 +306,8 @@ export function WorkspaceEditor() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            {currentUser?.role === UserRole.Annotator && 
+            <>
             <Button
               variant="success"
               onClick={handleSubmit}
@@ -267,6 +324,28 @@ export function WorkspaceEditor() {
               <Trash2 className="h-4 w-4 mr-2" />
               Trash
             </Button>
+            </>
+            }
+            {(currentUser?.role === UserRole.Reviewer || currentUser?.role === UserRole.FinalReviewer) && 
+            <>
+            <Button
+              variant="success"
+              onClick={handleApprove}
+              disabled={approveTask.isPending || !canEdit}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              {submitTask.isPending ? 'Submitting...' : 'Approve'}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleReject}
+              disabled={rejectTask.isPending || !canEdit}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Reject
+            </Button>
+            </>
+            }
           </div>
         </footer>
       </main>

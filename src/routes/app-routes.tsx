@@ -6,6 +6,7 @@ import { UserRole } from '@/types'
 // Pages
 import { LoginPage } from '@/pages/auth/login-page'
 import { CallbackPage } from '@/pages/auth/callback-page'
+import { PendingApprovalPage } from '@/pages/auth/pending-approval-page'
 import { DashboardPage } from '@/pages/dashboard-page'
 import { AdminUsersPage } from '@/pages/admin/admin-users-page'
 import { AdminTasksPage } from '@/pages/admin/admin-tasks-page'
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
       {
         path: '/callback',
         element: <CallbackPage />,
+      },
+      {
+        path: '/pending-approval',
+        element: <PendingApprovalPage />,
       },
     ],
   },

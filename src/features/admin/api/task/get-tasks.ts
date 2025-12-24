@@ -1,17 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/axios';
-import type { Task } from '@/types';
+import type { AssignedTask } from '@/types';
 import { taskKeys } from './task-keys';
 
-const getTasks = async (username: string): Promise<Task[]> => {
+const getTask = async (username: string): Promise<AssignedTask | null> => {
   return apiClient.get(`/tasks/assign/${username}`);
 };
 
-export const useGetTasks = (username: string) => {
-  console.log("username", username)
+export const useGetTask = (username: string) => {
   return useQuery({
     queryKey: taskKeys.list(username),
-    queryFn: () => getTasks(username),
+    queryFn: () => getTask(username),
     retry: 1,
   });
 };

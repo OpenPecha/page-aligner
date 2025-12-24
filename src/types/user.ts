@@ -3,13 +3,13 @@ export enum UserRole {
   Admin = 'admin',
   Annotator = 'annotator',
   Reviewer = 'reviewer',
-  FinalReviewer = 'final_reviewer',
+  FinalReviewer = 'final reviewer',
 }
 
 // User interface
 export interface User {
   id?: string
-  username: string
+  username?: string
   email: string
   role?: UserRole
   group?: string
