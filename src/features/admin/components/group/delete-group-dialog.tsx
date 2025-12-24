@@ -74,7 +74,7 @@ export function DeleteGroupDialog({
                   Please reassign or remove all users from this group before deleting.
                 </p>
                 <div className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-                  Users: {usersInGroup.slice(0, 3).map(u => u.name).join(', ')}
+                  Users: {usersInGroup.slice(0, 3).map(u => u.username).join(', ')}
                   {usersInGroup.length > 3 && ` and ${usersInGroup.length - 3} more`}
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import { Trash2, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BatchStatusBar } from './batch-status-bar'
-import type { Task, Group } from '@/types'
+import type { Task } from '@/types'
 
 export interface BatchData {
   batchName: string

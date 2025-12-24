@@ -15,7 +15,7 @@ import { DeleteBatchDialog } from './delete-batch-dialog'
 import { TaskUploadDialog } from '../task/task-upload-dialog'
 
 export function BatchList() {
-  const { data: tasks = [], isLoading: tasksLoading } = useGetTasks()
+  const { data: tasks = [], isLoading: tasksLoading } = useGetTasks('')
   const { data: groups = [], isLoading: groupsLoading } = useGetGroups()
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [deleteBatch, setDeleteBatch] = useState<BatchData | null>(null)

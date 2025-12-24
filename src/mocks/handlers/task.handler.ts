@@ -1,7 +1,7 @@
 import { http, HttpResponse, delay } from 'msw'
 import { tasks, generateTaskId, findTaskById, deleteTaskById, addTask, groups } from '../db'
 import { TaskStatus, TaskAction } from '@/types'
-import type { Task, TaskUploadPayload, BulkCreateTasksResponse, TaskFilter } from '@/types'
+import type { Task, TaskUploadPayload, BulkCreateTasksResponse } from '@/types'
 
 export const taskHandlers = [
   // GET /api/tasks - List all tasks with optional filters

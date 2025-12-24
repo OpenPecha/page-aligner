@@ -160,7 +160,7 @@ export function Sidebar() {
                 {currentUser.username}
               </p>
               <p className="truncate text-xs text-muted-foreground">
-                {ROLE_CONFIG[currentUser.role]?.label}
+                {currentUser.role ? ROLE_CONFIG[currentUser.role]?.label : ''}
               </p>
             </div>
           )}

@@ -16,11 +16,11 @@ export const userHandlers = [
       if (body.role !== undefined) {
         existingUser.role = body.role
       }
-      if (body.groupId !== undefined) {
-        existingUser.groupId = body.groupId
+      if (body.group !== undefined) {
+        existingUser.group = body.group
       }
-      if (body.name) {
-        existingUser.name = body.name
+      if (body.username) {
+        existingUser.username = body.username
       }
       if (body.picture) {
         existingUser.picture = body.picture
@@ -32,39 +32,10 @@ export const userHandlers = [
     // Create new user with Annotator as default role
     const newUser: User = {
       id: crypto.randomUUID(),
-      name: body.name,
+      username: body.username,
       email: body.email,
       role: body.role ?? UserRole.Admin,
-      groupId: body.groupId ?? '',
-      picture: body.picture,
-      createdAt: new Date(),
-    }
-
-    users.push(newUser)
-
-    return HttpResponse.json(newUser, { status: 201 })
-  }),
-
-  // POST /api/users - Create new user
-  http.post('/api/user/', async ({ request }) => {
-    await delay(300)
-    const body = (await request.json()) as CreateUserDTO
-
-    // Check if email already exists
-    const existingUser = users.find((u) => u.email === body.email)
-    if (existingUser) {
-      return HttpResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409 }
-      )
-    }
-
-    const newUser: User = {
-      id: crypto.randomUUID(),
-      name: body.name,
-      email: body.email,
-      role: body.role ?? UserRole.Admin,
-      groupId: body.groupId ?? '',
+      group: body.group ?? '',
       picture: body.picture,
       createdAt: new Date(),
     }
@@ -116,7 +87,7 @@ export const userHandlers = [
     }
 
     if (groupId) {
-      filteredUsers = filteredUsers.filter((user) => user.groupId === groupId)
+      filteredUsers = filteredUsers.filter((user) => user.group === groupId)
     }
 
     // Calculate pagination
@@ -157,14 +128,14 @@ export const userHandlers = [
     const user = users[userIndex]
 
     // Update fields if provided
-    if (body.name !== undefined) {
-      user.name = body.name
+    if (body.new_username !== undefined) {
+      user.username = body.new_username
     }
-    if (body.role !== undefined) {
-      user.role = body.role
+    if (body.new_role !== undefined) {
+      user.role = body.new_role
     }
-    if (body.groupId !== undefined) {
-      user.groupId = body.groupId
+    if (body.new_group !== undefined) {
+      user.group = body.new_group
     }
 
     return HttpResponse.json(user)

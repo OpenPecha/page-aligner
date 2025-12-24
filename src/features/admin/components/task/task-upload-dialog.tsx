@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
-import { Upload, FileJson, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Upload, FileJson, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,

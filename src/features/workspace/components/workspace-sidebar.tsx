@@ -31,22 +31,6 @@ const getStateColor = (state: string): string => {
   }
 }
 
-const getStateLabel = (state: string): string => {
-  switch (state) {
-    case 'annotating':
-      return 'In Progress'
-    case 'submitted':
-      return 'Submitted'
-    case 'reviewing':
-      return 'In Review'
-    case 'completed':
-      return 'Completed'
-    case 'trashed':
-      return 'Trashed'
-    default:
-      return state
-  }
-}
 
 export function WorkspaceSidebar({
   task,

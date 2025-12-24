@@ -5,7 +5,7 @@ import { UserRole, TaskStatus, ROLE_CONFIG } from '@/types'
 
 export function DashboardPage() {
   const { currentUser } = useAuth()
-  const { data: recentTasks, isLoading } = useGetTasks(currentUser?.username)
+  const { data: recentTasks, isLoading } = useGetTasks(currentUser?.username ?? '')
   console.log("recentTasks", recentTasks)
 
   const tasks = recentTasks?.slice(0, 8) || []

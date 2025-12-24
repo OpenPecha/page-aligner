@@ -89,13 +89,13 @@ export function GroupUserList({ users, groupId, isLoading }: GroupUserListProps)
         >
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user.picture} alt={user.name} />
+              <AvatarImage src={user.picture} alt={user.username} />
               <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                {getInitials(user.name)}
+                {getInitials(user.username)}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-sm font-medium leading-none">{user.username}</p>
               <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                 <Mail className="h-3 w-3" />
                 {user.email}
@@ -105,7 +105,7 @@ export function GroupUserList({ users, groupId, isLoading }: GroupUserListProps)
 
           <Select
             value={user.role}
-            onValueChange={(value) => handleRoleChange(user.id, value as UserRole)}
+            onValueChange={(value) => handleRoleChange(user.id!, value as UserRole)}
             disabled={updateUserRole.isPending}
           >
             <SelectTrigger className="w-32 h-8 text-xs">
