@@ -46,7 +46,7 @@ export function GroupList() {
           ) : (
             <div className="space-y-3">
               {groups.map((group) => (
-                <GroupItem key={group.id} group={group} />
+                <GroupItem key={group.name} group={group} />
               ))}
             </div>
           )}

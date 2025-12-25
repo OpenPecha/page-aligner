@@ -20,8 +20,6 @@ import { UserRole } from '@/types'
 
 export function WorkspaceEditor() {
   const { currentUser } = useAuth()
-  console.log('currentUser', currentUser?.role)
-  console.log("role", UserRole.Reviewer)
   const { addToast } = useUIStore()
 
   // State
@@ -145,7 +143,7 @@ export function WorkspaceEditor() {
     if (!task || !currentUser) return
 
     rejectTask.mutate(
-      { task_id: task.task_id, username: currentUser.username!, transcript: text, reject: true },
+      { task_id: task.task_id, username: currentUser.username, transcript: text, reject: true },
       {
         onSuccess: () => {
           addToast({ title: 'Task rejected', variant: 'default' })

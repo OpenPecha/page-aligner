@@ -10,7 +10,6 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { currentUser, isAuthenticated, isLoading } = useAuth()
-  console.log("currentUser", currentUser)
   const location = useLocation()
 
   // #region agent log
@@ -33,7 +32,6 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
      // #endregion
     return <Navigate to="/login" state={{ from: location }} replace />
   }
-  console.log("currentUser", currentUser)
 
   // User has no role assigned - redirect to pending approval
   if (!currentUser.role) {

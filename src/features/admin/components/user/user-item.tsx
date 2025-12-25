@@ -14,6 +14,7 @@ import { UserRole, ROLE_CONFIG, type User, type Group } from '@/types'
 import { useUpdateUser } from '../../api/user'
 import { UserDialog } from './user-dialog'
 import { DeleteUserDialog } from './delete-user-dialog'
+import { getInitials } from '@/lib/utils'
 
 interface UserItemProps {
   user: User
@@ -24,15 +25,6 @@ export function UserItem({ user, groups }: UserItemProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const updateUser = useUpdateUser()
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  }
 
   const handleRoleChange = async (newRole: string) => {
     if (newRole === user.role) return
@@ -66,7 +58,7 @@ export function UserItem({ user, groups }: UserItemProps) {
           <Avatar className="h-10 w-10 shrink-0">
             <AvatarImage src={user.picture} alt={user.username} />
             <AvatarFallback className="bg-primary/10 text-primary text-sm">
-              {getInitials(user.username ?? '')}
+              {getInitials(user.username ?? 'No Name')}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
@@ -127,6 +119,7 @@ export function UserItem({ user, groups }: UserItemProps) {
           </Button>
           <Button
             variant="ghost"
+            disabled={true}
             size="icon"
             className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={() => setDeleteDialogOpen(true)}

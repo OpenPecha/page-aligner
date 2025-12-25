@@ -1,11 +1,13 @@
 import { useCallback } from 'react'
-import { Diamond, LogOut, RefreshCw, FileText, Folder, Users, AlertCircle } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Diamond, LogOut, RefreshCw, FileText, Folder, Users, AlertCircle, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/features/auth'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import type { AssignedTask } from '@/types'
+import { getInitials } from '@/lib/utils'
 
 interface WorkspaceSidebarProps {
   task: AssignedTask | null
@@ -60,6 +62,19 @@ export function WorkspaceSidebar({
 
       <Separator className="bg-sidebar-border" />
 
+      {/* Navigation */}
+      <nav className="p-2">
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+        >
+          <LayoutDashboard className="h-5 w-5 shrink-0" />
+          <span>Dashboard</span>
+        </Link>
+      </nav>
+
+      <Separator className="bg-sidebar-border" />
+
       {/* Current Task Info */}
       <div className="flex-1 overflow-y-auto p-4">
         {task ? (
@@ -74,7 +89,7 @@ export function WorkspaceSidebar({
               <div className="flex items-start gap-2 p-3 rounded-lg bg-sidebar-accent">
                 <FileText className="h-4 w-4 shrink-0 text-primary mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-sidebar-foreground break-all">
+                  <p className="text-sm font-medium text-sidebar-foreground break-all truncate">
                     {task.task_name}
                   </p>
                   <div className={cn(
@@ -123,20 +138,6 @@ export function WorkspaceSidebar({
                 </p>
               </div>
             )}
-
-            {/* Refresh Button */}
-            {onRefresh && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRefresh}
-                disabled={isLoading}
-                className="w-full"
-              >
-                <RefreshCw className={cn("h-4 w-4 mr-2", isLoading && "animate-spin")} />
-                {isLoading ? 'Loading...' : 'Refresh Task'}
-              </Button>
-            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -166,7 +167,7 @@ export function WorkspaceSidebar({
           <Avatar className="h-10 w-10 shrink-0 ring-2 ring-success">
             <AvatarImage src={currentUser.picture} alt={currentUser.username ?? ''} />
             <AvatarFallback className="bg-success text-success-foreground text-sm font-semibold">
-              {(currentUser.username ?? '').slice(0, 2).toUpperCase()}
+              {getInitials(currentUser.username ?? 'No Name')}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 overflow-hidden">
@@ -174,7 +175,7 @@ export function WorkspaceSidebar({
               {currentUser.username}
             </p>
             <p className="truncate text-xs text-muted-foreground">
-              {currentUser.group ? `${currentUser.group}` : 'No Group'}
+              {currentUser.role ? `${currentUser.role}` : 'No Role'}
             </p>
           </div>
         </div>

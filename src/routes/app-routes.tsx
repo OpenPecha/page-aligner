@@ -7,7 +7,7 @@ import { UserRole } from '@/types'
 import { LoginPage } from '@/pages/auth/login-page'
 import { CallbackPage } from '@/pages/auth/callback-page'
 import { PendingApprovalPage } from '@/pages/auth/pending-approval-page'
-import { DashboardPage } from '@/pages/dashboard-page'
+import { DashboardPage } from '@/pages/dashboard/dashboard-page'
 import { AdminUsersPage } from '@/pages/admin/admin-users-page'
 import { AdminTasksPage } from '@/pages/admin/admin-tasks-page'
 import { AdminGroupsPage } from '@/pages/admin/admin-groups-page'
@@ -43,7 +43,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Navigate to="/workspace" replace />,
+        element: <Navigate to="/dashboard" replace />,
       },
       {
         path: '/dashboard',
@@ -88,7 +88,7 @@ export const router = createBrowserRouter([
   {
     path: '/workspace',
     element: (
-      <ProtectedRoute allowedRoles={[UserRole.Annotator, UserRole.Reviewer, UserRole.FinalReviewer, UserRole.Admin]}>
+      <ProtectedRoute allowedRoles={[UserRole.Annotator, UserRole.Reviewer, UserRole.FinalReviewer]}>
         <WorkspacePage />
       </ProtectedRoute>
     ),

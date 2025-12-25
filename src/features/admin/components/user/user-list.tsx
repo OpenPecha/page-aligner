@@ -37,7 +37,7 @@ export function UserList() {
     limit: PAGE_SIZE,
   })
 
-  const users = data?.data ?? []
+  const users = data ?? []
   const total = data?.total ?? 0
   const totalPages = Math.ceil(total / PAGE_SIZE)
 

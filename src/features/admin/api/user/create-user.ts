@@ -4,7 +4,7 @@ import { type CreateUserDTO, type User } from '@/types';
 import { userKeys } from './user-keys';
 
 const createUser = async (data: CreateUserDTO): Promise<User> => {
-  return apiClient.post('/users', data);
+  return apiClient.post('/user/', data);
 };
 
 export const useCreateUser = () => {

@@ -10,6 +10,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { UserRole, ROLE_CONFIG, type User } from '@/types'
 import { useUpdateUserRole } from '../../api/user'
+import { getInitials } from '@/lib/utils'
 
 interface GroupUserListProps {
   users: User[]
@@ -44,15 +45,6 @@ function EmptyState() {
 
 export function GroupUserList({ users, groupId, isLoading }: GroupUserListProps) {
   const updateUserRole = useUpdateUserRole()
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  }
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     try {
@@ -91,7 +83,7 @@ export function GroupUserList({ users, groupId, isLoading }: GroupUserListProps)
             <Avatar className="h-8 w-8">
               <AvatarImage src={user.picture} alt={user.username} />
               <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                {getInitials(user.username ?? '')}
+                {getInitials(user.username ?? 'No Name')}
               </AvatarFallback>
             </Avatar>
             <div>

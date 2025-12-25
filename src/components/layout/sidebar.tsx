@@ -17,6 +17,7 @@ import { UserRole, ROLE_CONFIG } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
+import { getInitials } from '@/lib/utils'
 
 interface NavItem {
   label: string
@@ -30,25 +31,7 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-    roles: [UserRole.Admin],
-  },
-  {
-    label: 'Workspace',
-    href: '/workspace',
-    icon: FileText,
-    roles: [UserRole.Annotator, UserRole.Reviewer, UserRole.FinalReviewer],
-  },
-  {
-    label: 'Review Queue',
-    href: '/review',
-    icon: CheckSquare,
-    roles: [UserRole.Reviewer],
-  },
-  {
-    label: 'Final Review',
-    href: '/final-review',
-    icon: Shield,
-    roles: [UserRole.FinalReviewer],
+    roles: [UserRole.Admin, UserRole.Annotator, UserRole.Reviewer, UserRole.FinalReviewer],
   },
   {
     label: 'Users',
@@ -151,7 +134,7 @@ export function Sidebar() {
           <Avatar className="h-9 w-9 shrink-0">
             <AvatarImage src={currentUser.picture} alt={currentUser.username} />
             <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-            {currentUser.username}
+            {getInitials(currentUser.username ?? 'No Name')}
             </AvatarFallback>
           </Avatar>
           {!sidebarCollapsed && (

@@ -38,12 +38,13 @@ export function UserDialog({ open, onOpenChange, user }: UserDialogProps) {
           },
         })
       } else {
-        await createUser.mutateAsync({
-          username: data.username,
-          email: data.email,
-          role: data?.role,
-          group: data?.group,
-        })
+        // Only include properties in the request if they exist in data
+        const payload: any = {}
+        if (data.username) payload.username = data.username
+        if (data.email) payload.email = data.email
+        if (data.role) payload.role = data.role
+        if (data.group) payload.group = data.group
+        await createUser.mutateAsync(payload)
       }
       onOpenChange(false)
     } catch (error) {
@@ -73,7 +74,7 @@ export function UserDialog({ open, onOpenChange, user }: UserDialogProps) {
         </DialogHeader>
 
         <UserForm
-          key={user?.username ?? 'new'}
+          key={user?.username ?? ""}
           defaultValues={defaultValues}
           groups={groups}
           onSubmit={handleSubmit}

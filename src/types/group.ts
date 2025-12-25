@@ -20,7 +20,7 @@ export interface GroupRequest {
 
 // Request payload for updating groups
 export interface GroupUpdateRequest {
-  name?: string
-  description?: string
+  new_name?: string
+  new_description?: string
 }
 
