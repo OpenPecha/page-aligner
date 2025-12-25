@@ -1,8 +1,11 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { useBlocker } from 'react-router-dom'
 import { GripHorizontal, Send, Trash2, XCircle } from 'lucide-react'
 import { ImageCanvas } from './image-canvas'
 import { WorkspaceSidebar } from './workspace-sidebar'
 import { TrashConfirmationDialog } from './trash-confirmation-dialog'
+import { UnsavedChangesDialog } from './unsaved-changes-dialog'
+import { EditorOverlay } from './editor-overlay'
 import { EmptyTasksState } from './empty-tasks-state'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -35,6 +38,7 @@ export function WorkspaceEditor() {
   const {
     data: task,
     isLoading,
+    isFetching,
     refetch,
   } = useGetAssignedTask(currentUser?.username)
 
@@ -42,8 +46,31 @@ export function WorkspaceEditor() {
   const trashTask = useTrashTask(currentUser?.username)
   const approveTask = useApproveTask(currentUser?.username)
   const rejectTask = useRejectTask(currentUser?.username)
+
+  // Derived states
   const hasUnsavedChanges = text !== initialText
   const canEdit = task?.state === 'annotating' || task?.state === 'reviewing'
+  const isMutating = submitTask.isPending || trashTask.isPending || approveTask.isPending || rejectTask.isPending
+  const isLoadingNextTask = isFetching && !isLoading
+  const showOverlay = isLoadingNextTask || isMutating
+
+  // Block navigation when there are unsaved changes
+  const blocker = useBlocker(hasUnsavedChanges)
+
+  // Derive dialog open state from blocker
+  const isBlockerActive = blocker.state === 'blocked'
+
+  // Browser beforeunload warning for unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasUnsavedChanges])
 
   // Track task ID to detect task changes
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null)
@@ -180,16 +207,20 @@ export function WorkspaceEditor() {
     setIsDragging(false)
   }, [])
 
-  // Loading state
+  // Loading state - keep sidebar visible, only skeleton main area
   if (isLoading) {
     return (
       <div className="flex h-screen">
-        <div className="w-60 border-r border-sidebar-border bg-sidebar">
-          <Skeleton className="h-full w-full" />
-        </div>
-        <div className="flex-1 flex flex-col">
-          <Skeleton className="h-full w-full" />
-        </div>
+        <WorkspaceSidebar
+          task={null}
+          onRefresh={() => refetch()}
+          isLoading={true}
+        />
+        <main className="flex-1 ml-60 flex flex-col">
+          <div className="flex-1 flex items-center justify-center">
+            <Skeleton className="h-full w-full m-4 rounded-lg" />
+          </div>
+        </main>
       </div>
     )
   }
@@ -201,7 +232,7 @@ export function WorkspaceEditor() {
         <WorkspaceSidebar
           task={null}
           onRefresh={() => refetch()}
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
         />
         <main className="flex-1 ml-60">
           <EmptyTasksState
@@ -220,18 +251,24 @@ export function WorkspaceEditor() {
       <WorkspaceSidebar
         task={task}
         onRefresh={() => refetch()}
-        isLoading={isLoading}
+        isLoading={isFetching}
       />
 
       {/* Main Content */}
       <main className="flex-1 ml-60 flex flex-col">
         {/* Split Pane Container */}
         <div
-          className="flex-1 flex flex-col overflow-hidden"
+          className="relative flex-1 flex flex-col overflow-hidden"
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
+          {/* Loading/Mutation Overlay */}
+          <EditorOverlay
+            show={showOverlay}
+            message={isMutating ? 'Processing...' : 'Loading next task...'}
+          />
+
           {/* Image Panel */}
           <div
             className="overflow-hidden border-b border-border"
@@ -260,13 +297,13 @@ export function WorkspaceEditor() {
               ref={textareaRef}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              readOnly={!canEdit}
+              readOnly={!canEdit || showOverlay}
               placeholder="Begin typing or editing..."
               className={cn(
                 'h-full w-full resize-none bg-transparent p-5 font-monlam text-sm leading-7',
                 'text-foreground placeholder:text-muted-foreground/50',
                 'focus:outline-none focus:ring-0',
-                !canEdit && 'cursor-default opacity-80'
+                (!canEdit || showOverlay) && 'cursor-default opacity-80'
               )}
               style={{
                 fontFamily: "Monlam",
@@ -296,7 +333,7 @@ export function WorkspaceEditor() {
         <Button
           variant="success"
           onClick={handleSubmit}
-          disabled={submitTask.isPending || !canEdit}
+          disabled={showOverlay || !canEdit}
         >
           <Send className="h-4 w-4 mr-2" />
           {submitTask.isPending ? 'Submitting...' : 'Submit'}
@@ -304,7 +341,7 @@ export function WorkspaceEditor() {
         <Button
           variant="destructive"
           onClick={() => setTrashDialogOpen(true)}
-          disabled={trashTask.isPending || !canEdit}
+          disabled={showOverlay || !canEdit}
         >
           <Trash2 className="h-4 w-4 mr-2" />
           Trash
@@ -317,7 +354,7 @@ export function WorkspaceEditor() {
         <Button
           variant="success"
           onClick={handleApprove}
-          disabled={approveTask.isPending || !canEdit}
+          disabled={showOverlay || !canEdit}
         >
           <Send className="h-4 w-4 mr-2" />
           {approveTask.isPending ? 'Approving...' : 'Approve'}
@@ -325,7 +362,7 @@ export function WorkspaceEditor() {
         <Button
           variant="destructive"
           onClick={handleReject}
-          disabled={rejectTask.isPending || !canEdit}
+          disabled={showOverlay || !canEdit}
         >
           <XCircle className="h-4 w-4 mr-2" />
           Reject
@@ -349,6 +386,16 @@ export function WorkspaceEditor() {
         onCancel={() => setTrashDialogOpen(false)}
         isLoading={trashTask.isPending}
         taskName={task.task_name}
+      />
+
+      {/* Unsaved Changes Dialog */}
+      <UnsavedChangesDialog
+        open={isBlockerActive}
+        onOpenChange={(open) => {
+          if (!open) blocker.reset?.()
+        }}
+        onDiscard={() => blocker.proceed?.()}
+        onCancel={() => blocker.reset?.()}
       />
     </div>
   )

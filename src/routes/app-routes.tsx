@@ -1,18 +1,21 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AuthLayout, MainLayout } from '@/components/layout'
 import { ProtectedRoute } from './protected-route'
 import { UserRole } from '@/types'
 
-// Pages
-import { LoginPage } from '@/pages/auth/login-page'
-import { CallbackPage } from '@/pages/auth/callback-page'
-import { PendingApprovalPage } from '@/pages/auth/pending-approval-page'
-import { DashboardPage } from '@/pages/dashboard/dashboard-page'
-import { AdminUsersPage } from '@/pages/admin/admin-users-page'
-import { AdminTasksPage } from '@/pages/admin/admin-tasks-page'
-import { AdminGroupsPage } from '@/pages/admin/admin-groups-page'
-import { WorkspacePage } from '@/pages/workspace/workspace-page'
-import { NotFoundPage } from '@/pages/not-found'
+// Lazy loaded pages
+const LoginPage = lazy(() => import('@/pages/auth/login-page').then(m => ({ default: m.LoginPage })))
+const CallbackPage = lazy(() => import('@/pages/auth/callback-page').then(m => ({ default: m.CallbackPage })))
+const PendingApprovalPage = lazy(() => import('@/pages/auth/pending-approval-page').then(m => ({ default: m.PendingApprovalPage })))
+const DashboardPage = lazy(() => import('@/pages/dashboard/dashboard-page').then(m => ({ default: m.DashboardPage })))
+const AdminUsersPage = lazy(() => import('@/pages/admin/admin-users-page').then(m => ({ default: m.AdminUsersPage })))
+const AdminTasksPage = lazy(() => import('@/pages/admin/admin-tasks-page').then(m => ({ default: m.AdminTasksPage })))
+const AdminGroupsPage = lazy(() => import('@/pages/admin/admin-groups-page').then(m => ({ default: m.AdminGroupsPage })))
+const WorkspacePage = lazy(() => import('@/pages/workspace/workspace-page').then(m => ({ default: m.WorkspacePage })))
+const NotFoundPage = lazy(() => import('@/pages/not-found').then(m => ({ default: m.NotFoundPage })))
+
+const fallback = <></>
 
 export const router = createBrowserRouter([
   // Auth routes (public)
@@ -21,15 +24,15 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/login',
-        element: <LoginPage />,
+        element: <Suspense fallback={fallback}><LoginPage /></Suspense>,
       },
       {
         path: '/callback',
-        element: <CallbackPage />,
+        element: <Suspense fallback={fallback}><CallbackPage /></Suspense>,
       },
       {
         path: '/pending-approval',
-        element: <PendingApprovalPage />,
+        element: <Suspense fallback={fallback}><PendingApprovalPage /></Suspense>,
       },
     ],
   },
@@ -47,13 +50,13 @@ export const router = createBrowserRouter([
       },
       {
         path: '/dashboard',
-        element: <DashboardPage />,
+        element: <Suspense fallback={fallback}><DashboardPage /></Suspense>,
       },
       {
         path: '/admin/users',
         element: (
           <ProtectedRoute allowedRoles={[UserRole.Admin]}>
-            <AdminUsersPage />
+            <Suspense fallback={fallback}><AdminUsersPage /></Suspense>
           </ProtectedRoute>
         ),
       },
@@ -61,7 +64,7 @@ export const router = createBrowserRouter([
         path: '/admin/tasks',
         element: (
           <ProtectedRoute allowedRoles={[UserRole.Admin]}>
-            <AdminTasksPage />
+            <Suspense fallback={fallback}><AdminTasksPage /></Suspense>
           </ProtectedRoute>
         ),
       },
@@ -69,7 +72,7 @@ export const router = createBrowserRouter([
         path: '/admin/groups',
         element: (
           <ProtectedRoute allowedRoles={[UserRole.Admin]}>
-            <AdminGroupsPage />
+            <Suspense fallback={fallback}><AdminGroupsPage /></Suspense>
           </ProtectedRoute>
         ),
       },
@@ -89,7 +92,7 @@ export const router = createBrowserRouter([
     path: '/workspace',
     element: (
       <ProtectedRoute allowedRoles={[UserRole.Annotator, UserRole.Reviewer, UserRole.FinalReviewer]}>
-        <WorkspacePage />
+        <Suspense fallback={fallback}><WorkspacePage /></Suspense>
       </ProtectedRoute>
     ),
   },
@@ -97,6 +100,6 @@ export const router = createBrowserRouter([
   // 404
   {
     path: '*',
-    element: <NotFoundPage />,
+    element: <Suspense fallback={fallback}><NotFoundPage /></Suspense>,
   },
 ])

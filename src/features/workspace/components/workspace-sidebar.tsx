@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { Diamond, LogOut, RefreshCw, FileText, Folder, Users, LayoutDashboard } from 'lucide-react'
+import { Diamond, LogOut, RefreshCw, FileText, Folder, Users, LayoutDashboard, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/features/auth'
 import { Button } from '@/components/ui/button'
@@ -79,9 +79,14 @@ export function WorkspaceSidebar({
           <div className="space-y-4">
             {/* Task Header */}
             <div className="space-y-2">
-              <h3 className="text-xs font-medium uppercase text-muted-foreground tracking-wider">
-                Current Task
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-medium uppercase text-muted-foreground tracking-wider">
+                  Current Task
+                </h3>
+                {isLoading && (
+                  <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                )}
+              </div>
               
               {/* Task Name */}
               <div className="flex items-start gap-2 p-3 rounded-lg bg-sidebar-accent">

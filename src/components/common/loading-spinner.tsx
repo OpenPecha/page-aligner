@@ -24,7 +24,7 @@ export function LoadingSpinner({ size = 'md', className, text }: LoadingSpinnerP
 
 export function PageLoader() {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center">
       <LoadingSpinner size="lg" text="Loading..." />
     </div>
   )

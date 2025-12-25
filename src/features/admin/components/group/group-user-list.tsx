@@ -9,12 +9,11 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { UserRole, ROLE_CONFIG, type User } from '@/types'
-import { useUpdateUserRole } from '../../api/user'
+import { useUpdateUser } from '../../api/user'
 import { getInitials } from '@/lib/utils'
 
 interface GroupUserListProps {
   users: User[]
-  groupId: string
   isLoading?: boolean
 }
 
@@ -43,15 +42,16 @@ function EmptyState() {
   )
 }
 
-export function GroupUserList({ users, groupId, isLoading }: GroupUserListProps) {
-  const updateUserRole = useUpdateUserRole()
+export function GroupUserList({ users, isLoading }: GroupUserListProps) {
+  const updateUserRole = useUpdateUser()
 
-  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+  const handleRoleChange = async (username: string, newRole: UserRole) => {
     try {
       await updateUserRole.mutateAsync({
-        userId,
-        role: newRole,
-        groupId,
+        username: username,
+        data: {
+          new_role: newRole,
+        }
       })
     } catch (error) {
       console.error('Failed to update user role:', error)
@@ -97,7 +97,7 @@ export function GroupUserList({ users, groupId, isLoading }: GroupUserListProps)
 
           <Select
             value={user.role}
-            onValueChange={(value) => handleRoleChange(user.id!, value as UserRole)}
+            onValueChange={(value) => handleRoleChange(user.username ?? '', value as UserRole)}
             disabled={updateUserRole.isPending}
           >
             <SelectTrigger className="w-32 h-8 text-xs">

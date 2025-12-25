@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { workspaceKeys } from './workspace-keys'
-
-const BASE_URL = 'https://openpecha-annotation-tool-dev.web.app/api'
+import { apiClient } from '@/lib/axios'
 
 interface SubmitTaskParams {
   task_id: string
@@ -16,21 +15,11 @@ interface SubmitTaskResponse {
 }
 
 const submitTask = async (params: SubmitTaskParams): Promise<SubmitTaskResponse> => {
-  const response = await fetch(`${BASE_URL}/tasks/submit/${params.task_id}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'accept': 'application/json',
-    },
-    body: JSON.stringify({username: params.username, transcript: params.transcript, submit: params.submit}),
+  return apiClient.post(`/tasks/submit/${params.task_id}`, {
+    username: params.username,
+    transcript: params.transcript,
+    submit: params.submit,
   })
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Submit failed' }))
-    throw new Error(error.message || 'Submit failed')
-  }
-
-  return response.json()
 }
 
 export const useSubmitTask = (username?: string) => {
@@ -47,4 +36,3 @@ export const useSubmitTask = (username?: string) => {
     },
   })
 }
-

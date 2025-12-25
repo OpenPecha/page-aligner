@@ -1,20 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import type { AssignedTask } from '@/types'
 import { workspaceKeys } from './workspace-keys'
-
-const BASE_URL = 'https://openpecha-annotation-tool-dev.web.app/api'
+import { apiClient } from '@/lib/axios'
 
 const getAssignedTask = async (username: string): Promise<AssignedTask | null> => {
-  const response = await fetch(`${BASE_URL}/tasks/assign/${username}`, {
-    headers: { 'accept': 'application/json' }
-  })
-  
-  if (!response.ok) {
-    if (response.status === 404) return null // No task available
+  try {
+    return await apiClient.get(`/tasks/assign/${username}`)
+  } catch (error) {
+    if (error instanceof Error && 'response' in error) {
+      const axiosError = error as { response?: { status: number } }
+      if (axiosError.response?.status === 404) return null
+    }
     throw new Error('Failed to fetch task')
   }
-  
-  return response.json()
 }
 
 export const useGetAssignedTask = (username?: string) => {
@@ -22,8 +20,7 @@ export const useGetAssignedTask = (username?: string) => {
     queryKey: workspaceKeys.assignedTask(username ?? ''),
     queryFn: () => getAssignedTask(username!),
     enabled: !!username,
-    staleTime: 0, // Always fetch fresh
+    staleTime: 0,
     retry: 1,
   })
 }
-
