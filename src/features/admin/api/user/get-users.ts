@@ -1,9 +1,9 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { apiClient } from '@/lib/axios'
-import { type User, type PaginatedResponse, type UserFilters } from '@/types'
+import { type UserListResponse, type UserFilters } from '@/types'
 import { userKeys } from './user-keys'
 
-const getUsers = async (filters: UserFilters): Promise<PaginatedResponse<User>> => {
+const getUsers = async (filters: UserFilters): Promise<UserListResponse['users']> => {
   const params = new URLSearchParams()
   
   if (filters.search) params.append('search', filters.search)

@@ -2,8 +2,6 @@ import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
   FileText,
-  CheckSquare,
-  Shield,
   Users,
   Layers,
   LogOut,

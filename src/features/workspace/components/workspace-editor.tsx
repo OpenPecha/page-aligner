@@ -143,7 +143,7 @@ export function WorkspaceEditor() {
     if (!task || !currentUser) return
 
     rejectTask.mutate(
-      { task_id: task.task_id, username: currentUser.username, transcript: text, reject: true },
+      { task_id: task.task_id, username: currentUser.username!, transcript: text, reject: true },
       {
         onSuccess: () => {
           addToast({ title: 'Task rejected', variant: 'default' })

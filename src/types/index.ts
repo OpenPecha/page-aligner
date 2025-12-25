@@ -1,6 +1,6 @@
 // User types
 export { UserRole, ROLE_CONFIG } from './user'
-export type { User, CreateUserDTO, UpdateUserDTO, PaginatedResponse, UserFilters } from './user'
+export type * from './user'
 
 // Task types
 export {

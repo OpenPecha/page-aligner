@@ -13,8 +13,8 @@ import { useGetGroups } from '../../api/group'
 import { useDebouncedValue } from '@/hooks'
 import { UserFilters } from './user-filters'
 import { UserItem, UserItemSkeleton } from './user-item'
-import { UserPagination } from './user-pagination'
 import { UserDialog } from './user-dialog'
+import { UserRole } from '@/types'
 
 const PAGE_SIZE = 15
 const ALL_FILTER = 'all'
@@ -31,15 +31,13 @@ export function UserList() {
 
   const { data, isLoading, isFetching } = useGetUsers({
     search: debouncedSearch || undefined,
-    role: roleFilter !== ALL_FILTER ? (roleFilter as any) : undefined,
+    role: roleFilter !== ALL_FILTER ? (roleFilter as UserRole) : undefined,
     groupId: groupFilter !== ALL_FILTER ? groupFilter : undefined,
     page,
     limit: PAGE_SIZE,
   })
 
   const users = data ?? []
-  const total = data?.total ?? 0
-  const totalPages = Math.ceil(total / PAGE_SIZE)
 
   // Reset page when filters change
   const handleSearchChange = (value: string) => {
@@ -64,7 +62,7 @@ export function UserList() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              All Members ({total})
+              All Members ({users.length})
             </CardTitle>
             <CardDescription className="mt-1.5">
               View and manage all users in the system
@@ -117,16 +115,6 @@ export function UserList() {
               </div>
             )}
           </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <UserPagination
-              page={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              isLoading={isFetching}
-            />
-          )}
         </CardContent>
       </Card>
 
