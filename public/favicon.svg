@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <!-- Gradient inspired by Tibetan thangka art -->
+    <linearGradient id="tibetanGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F4D03F"/>
+      <stop offset="50%" style="stop-color:#E67E22"/>
+      <stop offset="100%" style="stop-color:#C0392B"/>
+    </linearGradient>
+    <linearGradient id="paperGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FDFEFE"/>
+      <stop offset="100%" style="stop-color:#E8DAEF"/>
+    </linearGradient>
+    <linearGradient id="inkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A1A2E"/>
+      <stop offset="100%" style="stop-color:#16213E"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle with Tibetan-inspired border -->
+  <circle cx="16" cy="16" r="15" fill="url(#tibetanGold)" stroke="#8B0000" stroke-width="1"/>
+  
+  <!-- Inner decorative ring -->
+  <circle cx="16" cy="16" r="12" fill="none" stroke="#FFF8DC" stroke-width="0.5" opacity="0.6"/>
+  
+  <!-- Stylized pecha (Tibetan book) shape -->
+  <rect x="6" y="9" width="20" height="14" rx="1.5" fill="url(#paperGradient)" stroke="#5D4E37" stroke-width="0.5"/>
+  
+  <!-- Tibetan letter ཨ (A) - the first letter of Tibetan alphabet, symbolizing origin/text -->
+  <path 
+    d="M12 13.5 
+       C12 12.5 13 12 14 12 
+       C15.5 12 16.5 13 16.5 14.5 
+       C16.5 15.5 16 16 15 16.5 
+       L17 19.5
+       M14.5 16.5 C14 17.5 13 18.5 12 19
+       M18 13 L18 19
+       M18 13 C19 12 20 12 20.5 13
+       M18 16 C19 15.5 20 16 20 17"
+    fill="none" 
+    stroke="url(#inkGradient)" 
+    stroke-width="1.2" 
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+  
+  <!-- Small image icon in corner representing transcription -->
+  <rect x="21" y="18" width="6" height="5" rx="0.5" fill="#2C3E50" opacity="0.8"/>
+  <circle cx="23" cy="20" r="0.8" fill="#F39C12"/>
+  <path d="M21.5 22 L23.5 20.5 L25 21.5 L26.5 20 L26.5 22.5 L21.5 22.5 Z" fill="#27AE60"/>
+  
+  <!-- Decorative corner flourish -->
+  <path d="M5 10 Q4 9 5 8" fill="none" stroke="#FFF8DC" stroke-width="0.5" opacity="0.7"/>
+  <path d="M27 10 Q28 9 27 8" fill="none" stroke="#FFF8DC" stroke-width="0.5" opacity="0.7"/>
+</svg>
+
