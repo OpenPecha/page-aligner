@@ -100,8 +100,6 @@ export function WorkspaceEditor() {
             variant: 'success',
           })
           setInitialText(text)
-          // Fetch next task
-          refetch()
         },
         onError: (error: Error) => {
           addToast({
@@ -112,7 +110,7 @@ export function WorkspaceEditor() {
         },
       }
     )
-  }, [task, currentUser, text, submitTask, addToast, refetch])
+  }, [task, currentUser, text, submitTask, addToast])
 
   // Trash handler
   const handleTrash = useCallback(() => {
@@ -124,8 +122,6 @@ export function WorkspaceEditor() {
         onSuccess: () => {
           setTrashDialogOpen(false)
           addToast({ title: 'Task marked as trash', variant: 'default' })
-          // Fetch next task
-          refetch()
         },
         onError: (error: Error) => {
           addToast({
@@ -136,7 +132,7 @@ export function WorkspaceEditor() {
         },
       }
     )
-  }, [task, currentUser, trashTask, addToast, refetch])
+  }, [task, currentUser, trashTask, addToast])
 
   // Approve handler
   const handleApprove = useCallback(() => {
@@ -152,7 +148,6 @@ export function WorkspaceEditor() {
             variant: 'success',
           })
           setInitialText(text)
-          refetch()
         },
         onError: (error: Error) => {
           addToast({
@@ -163,7 +158,7 @@ export function WorkspaceEditor() {
         },
       }
     )
-  }, [task, currentUser, text, approveTask, addToast, refetch])
+  }, [task, currentUser, text, approveTask, addToast])
 
   // Reject handler
   const handleReject = useCallback(() => {
@@ -174,7 +169,6 @@ export function WorkspaceEditor() {
       {
         onSuccess: () => {
           addToast({ title: 'Task rejected', variant: 'default' })
-          refetch()
         },
         onError: (error: Error) => {
           addToast({
@@ -185,7 +179,7 @@ export function WorkspaceEditor() {
         },
       }
     )
-  }, [task, currentUser, text, rejectTask, addToast, refetch])
+  }, [task, currentUser, text, rejectTask, addToast])
 
   // Split pane handlers
   const handleMouseDown = useCallback(() => {

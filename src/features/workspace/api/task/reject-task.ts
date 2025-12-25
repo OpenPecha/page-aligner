@@ -31,7 +31,6 @@ export const useRejectTask = (username?: string) => {
       if (username) {
         queryClient.invalidateQueries({ queryKey: workspaceKeys.assignedTask(username) })
       }
-      queryClient.invalidateQueries({ queryKey: workspaceKeys.all })
     },
   })
 }

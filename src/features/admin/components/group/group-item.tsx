@@ -107,7 +107,6 @@ export function GroupItem({ group }: GroupItemProps) {
                 </h4>
                 <GroupUserList
                   users={users}
-                  groupId={group.name}
                   isLoading={isLoadingUsers}
                 />
               </div>
