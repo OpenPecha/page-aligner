@@ -8,7 +8,7 @@ const getUsers = async (filters: UserFilters): Promise<UserListResponse['users']
   
   if (filters.search) params.append('search', filters.search)
   if (filters.role) params.append('role', filters.role)
-  if (filters.groupId) params.append('groupId', filters.groupId)
+  if (filters.group_id) params.append('group_id', filters.group_id)
   if (filters.page) params.append('page', String(filters.page))
   if (filters.limit) params.append('limit', String(filters.limit))
 

@@ -32,7 +32,7 @@ export function UserList() {
   const { data, isLoading, isFetching } = useGetUsers({
     search: debouncedSearch || undefined,
     role: roleFilter !== ALL_FILTER ? (roleFilter as UserRole) : undefined,
-    groupId: groupFilter !== ALL_FILTER ? groupFilter : undefined,
+    group_id: groupFilter !== ALL_FILTER ? groupFilter : undefined,
     page,
     limit: PAGE_SIZE,
   })

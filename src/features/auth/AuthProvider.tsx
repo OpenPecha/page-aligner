@@ -156,7 +156,7 @@ const DevAuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       username: 'Pema Lhamo',
       email: 'pema@example.com',
       role: UserRole.Annotator,
-      groupId: 'g1',
+      group_id: 'g1',
     }
     localStorage.setItem('dev_user', JSON.stringify(devUser))
     setCurrentUser(devUser)
