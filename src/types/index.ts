@@ -12,6 +12,7 @@ export {
 export type {
   Task,
   TaskHistoryEntry,
+  TaskOrientation,
   AssignedTask,
   AssignTaskRequest,
   SubmitTaskRequest,

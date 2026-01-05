@@ -1,5 +1,6 @@
 import {
   Toast,
+  ToastAction,
   ToastClose,
   ToastDescription,
   ToastProvider,
@@ -27,6 +28,17 @@ export function Toaster() {
               <ToastDescription>{toast.description}</ToastDescription>
             )}
           </div>
+          {toast.action && (
+            <ToastAction
+              altText={toast.action.label}
+              onClick={() => {
+                toast.action?.onClick()
+                removeToast(toast.id)
+              }}
+            >
+              {toast.action.label}
+            </ToastAction>
+          )}
           <ToastClose />
         </Toast>
       ))}

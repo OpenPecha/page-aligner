@@ -88,6 +88,9 @@ export interface AssignTaskRequest {
   userId: string
 }
 
+// Task orientation type
+export type TaskOrientation = 'landscape' | 'portrait'
+
 // Assigned task from real backend API
 export interface AssignedTask {
   task_id: string
@@ -97,6 +100,7 @@ export interface AssignedTask {
   state: 'annotating' | 'submitted' | 'reviewing' | 'finalising' | 'completed' | 'trashed'
   batch_name: string
   group: string
+  orientation?: TaskOrientation
 }
 
 // Task submission request

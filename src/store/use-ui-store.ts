@@ -1,17 +1,41 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface Toast {
   id: string
   title: string
   description?: string
   variant?: 'default' | 'destructive' | 'success'
+  action?: {
+    label: string
+    onClick: () => void
+  }
 }
+
+export type Theme = 'system' | 'light' | 'dark'
+export type Language = 'en' | 'bo'
+export type EditorFontFamily = 'monlam' | 'monlam-2'
+export type EditorFontSize = 14 | 16 | 18 | 20 | 24 | 28 | 32
 
 interface UIState {
   // Sidebar state
   sidebarCollapsed: boolean
   toggleSidebar: () => void
   setSidebarCollapsed: (collapsed: boolean) => void
+
+  // Theme state
+  theme: Theme
+  setTheme: (theme: Theme) => void
+
+  // Language state
+  language: Language
+  setLanguage: (language: Language) => void
+
+  // Editor preferences
+  editorFontFamily: EditorFontFamily
+  editorFontSize: EditorFontSize
+  setEditorFontFamily: (font: EditorFontFamily) => void
+  setEditorFontSize: (size: EditorFontSize) => void
 
   // Toast notifications
   toasts: Toast[]
@@ -32,33 +56,61 @@ interface UIState {
 
 let toastId = 0
 
-export const useUIStore = create<UIState>((set) => ({
-  // Sidebar
-  sidebarCollapsed: false,
-  toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
-  setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+export const useUIStore = create<UIState>()(
+  persist(
+    (set) => ({
+      // Sidebar
+      sidebarCollapsed: false,
+      toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+      setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
 
-  // Toasts
-  toasts: [],
-  addToast: (toast) => {
-    const id = `toast_${++toastId}`
-    set((state) => ({ toasts: [...state.toasts, { ...toast, id }] }))
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }))
-    }, 5000)
-  },
-  removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
-  clearToasts: () => set({ toasts: [] }),
+      // Theme
+      theme: 'system',
+      setTheme: (theme) => set({ theme }),
 
-  // Modal
-  activeModal: null,
-  modalData: {},
-  openModal: (modalId, data = {}) => set({ activeModal: modalId, modalData: data }),
-  closeModal: () => set({ activeModal: null, modalData: {} }),
+      // Language
+      language: 'en',
+      setLanguage: (language) => set({ language }),
 
-  // Workspace
-  unsavedChanges: false,
-  setUnsavedChanges: (hasChanges) => set({ unsavedChanges: hasChanges }),
-}))
+      // Editor preferences
+      editorFontFamily: 'monlam',
+      editorFontSize: 20,
+      setEditorFontFamily: (font) => set({ editorFontFamily: font }),
+      setEditorFontSize: (size) => set({ editorFontSize: size }),
+
+      // Toasts
+      toasts: [],
+      addToast: (toast) => {
+        const id = `toast_${++toastId}`
+        set((state) => ({ toasts: [...state.toasts, { ...toast, id }] }))
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+          set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }))
+        }, 5000)
+      },
+      removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+      clearToasts: () => set({ toasts: [] }),
+
+      // Modal
+      activeModal: null,
+      modalData: {},
+      openModal: (modalId, data = {}) => set({ activeModal: modalId, modalData: data }),
+      closeModal: () => set({ activeModal: null, modalData: {} }),
+
+      // Workspace
+      unsavedChanges: false,
+      setUnsavedChanges: (hasChanges) => set({ unsavedChanges: hasChanges }),
+    }),
+    {
+      name: 'ui-storage',
+      partialize: (state) => ({
+        sidebarCollapsed: state.sidebarCollapsed,
+        theme: state.theme,
+        language: state.language,
+        editorFontFamily: state.editorFontFamily,
+        editorFontSize: state.editorFontSize,
+      }),
+    }
+  )
+)
 
