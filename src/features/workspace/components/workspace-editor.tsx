@@ -341,7 +341,7 @@ export function WorkspaceEditor() {
           {/* Text Editor Panel */}
           <div
             className={cn(
-              'overflow-hidden bg-gradient-to-br from-sky-50/80 to-cyan-50/60 dark:from-sky-900/20 dark:to-cyan-900/10 flex-1 flex flex-col',
+              'overflow-hidden bg-muted/30 flex-1 flex flex-col',
               isHorizontalLayout ? 'h-full' : 'w-full'
             )}
           >
@@ -362,8 +362,8 @@ export function WorkspaceEditor() {
               readOnly={!canEdit || showOverlay}
               placeholder="Begin typing or editing..."
               className={cn(
-                'flex-1 w-full resize-none bg-[#121111] p-5',
-                'text-foreground placeholder:text-muted-foreground/50',
+                'flex-1 w-full resize-none bg-card p-5',
+                'text-foreground placeholder:text-placeholder',
                 'focus:outline-none focus:ring-0',
                 'transition-all duration-200',
                 (!canEdit || showOverlay) && 'cursor-default opacity-80'

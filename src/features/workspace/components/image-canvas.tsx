@@ -85,7 +85,7 @@ export function ImageCanvas({ imageUrl, isLoading }: ImageCanvasProps) {
             </div>
 
             {/* Image Container */}
-            <div className="flex-1 overflow-hidden bg-[#1a1a1a]">
+            <div className="flex-1 overflow-hidden bg-muted">
               <TransformComponent
                 wrapperStyle={{
                   width: '100%',

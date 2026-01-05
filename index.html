@@ -1,11 +1,41 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Transcription - Image-Text Correction Tool</title>
     <meta name="description" content="Image-Text Correction Tool" />
+    <!-- Theme flicker prevention - runs before React hydrates -->
+    <script>
+      (function() {
+        try {
+          const stored = localStorage.getItem('ui-storage');
+          if (stored) {
+            const { state } = JSON.parse(stored);
+            const theme = state?.theme;
+            if (theme === 'dark') {
+              document.documentElement.classList.add('dark');
+            } else if (theme === 'system') {
+              if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+              }
+            }
+            // 'light' theme: no class needed (default)
+          } else {
+            // No stored preference, use system default
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              document.documentElement.classList.add('dark');
+            }
+          }
+        } catch (e) {
+          // Fallback to system preference on error
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          }
+        }
+      })();
+    </script>
     <!-- Preload fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
