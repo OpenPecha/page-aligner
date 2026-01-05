@@ -362,7 +362,7 @@ export function WorkspaceEditor() {
               readOnly={!canEdit || showOverlay}
               placeholder="Begin typing or editing..."
               className={cn(
-                'flex-1 w-full resize-none bg-transparent p-5',
+                'flex-1 w-full resize-none bg-[#121111] p-5',
                 'text-foreground placeholder:text-muted-foreground/50',
                 'focus:outline-none focus:ring-0',
                 'transition-all duration-200',
