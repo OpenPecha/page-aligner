@@ -17,6 +17,7 @@ export interface BatchTask {
   task_url: string
   task_transcript: string
   state: BatchTaskState
+  orientation?: 'landscape' | 'portrait'
 }
 
 // Batch with stats from report endpoint

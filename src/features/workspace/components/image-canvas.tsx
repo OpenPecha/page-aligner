@@ -1,8 +1,9 @@
 import { useRef } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
-import { ZoomIn, ZoomOut, RotateCcw, Maximize2 } from 'lucide-react'
+import { ZoomIn, ZoomOut, RotateCcw, Maximize2, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useTiffImage } from '../hooks'
 
 interface ImageCanvasProps {
   imageUrl: string
@@ -11,6 +12,7 @@ interface ImageCanvasProps {
 
 export function ImageCanvas({ imageUrl, isLoading }: ImageCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const { displayUrl, isConverting, error } = useTiffImage(imageUrl)
 
   if (isLoading) {
     return (
@@ -28,6 +30,30 @@ export function ImageCanvas({ imageUrl, isLoading }: ImageCanvasProps) {
         </div>
       </div>
     )
+  }
+
+  if (isConverting) {
+    <div className="flex-1 h-full flex items-center justify-center bg-muted/20">
+      <div className="flex flex-col items-center gap-3">
+        <Skeleton className="h-64 w-64" />
+          <span className="text-sm text-muted-foreground">Converting TIFF image...</span>
+        </div>
+    </div>
+    }
+
+  if (error) {
+    return (
+      <div className="flex-1 h-full flex items-center justify-center bg-muted/20">
+        <div className="flex flex-col items-center gap-3">
+          <AlertTriangle className="h-12 w-12 text-destructive" />
+          <span className="text-sm text-muted-foreground">{error}</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!displayUrl) {
+    return null
   }
 
   return (
@@ -100,7 +126,7 @@ export function ImageCanvas({ imageUrl, isLoading }: ImageCanvasProps) {
                 }}
               >
                 <img
-                  src={imageUrl}
+                  src={displayUrl}
                   alt="Source document"
                   className="max-h-full max-w-full object-contain"
                   draggable={false}

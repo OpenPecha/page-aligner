@@ -9,7 +9,14 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
-    allowedHosts: true
+    allowedHosts: true,
+    proxy: {
+      '/s3-proxy': {
+        target: 'https://s3.us-east-1.amazonaws.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/s3-proxy/, ''),
+      },
+    },
   },
   resolve: {
     alias: {
