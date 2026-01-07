@@ -6,7 +6,7 @@ export function useTiffImage(imageUrl: string) {
   const [isConverting, setIsConverting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const loadTiffImage = useCallback(async (url: string) => {
+  const loadTiffImage = useCallback(async (url: string, originalUrl: string) => {
     setIsConverting(true)
     setError(null)
 
@@ -17,12 +17,19 @@ export function useTiffImage(imageUrl: string) {
       }
 
       const buffer = await response.arrayBuffer()
-      const dataUrl = decodeTiffToDataUrl(buffer)
-      setDisplayUrl(dataUrl)
+
+      // Check if the file is actually a TIFF by inspecting magic bytes
+      if (isTiffBuffer(buffer)) {
+        const dataUrl = decodeTiffToDataUrl(buffer)
+        setDisplayUrl(dataUrl)
+      } else {
+        // Not a real TIFF (e.g., PNG/JPEG with wrong extension), use original URL
+        setDisplayUrl(originalUrl)
+      }
     } catch (err) {
-      const message = 'Failed to load TIFF image'
+      const message = 'Failed to load image'
       setError(message)
-      console.error('TIFF loading error:', err)
+      console.error('Image loading error:', err)
     } finally {
       setIsConverting(false)
     }
@@ -35,7 +42,7 @@ export function useTiffImage(imageUrl: string) {
     }
     const proxiedUrl = getProxiedUrl(imageUrl)
     if (isTiffUrl(imageUrl)) {
-      loadTiffImage(proxiedUrl)
+      loadTiffImage(proxiedUrl, proxiedUrl)
     } else {
       setDisplayUrl(proxiedUrl)
       setIsConverting(false)
@@ -79,6 +86,28 @@ function decodeTiffToDataUrl(buffer: ArrayBuffer): string {
 
 function isTiffUrl(url: string): boolean {
   return url.endsWith('.tiff') || url.endsWith('.tif') || url.endsWith('.TIFF') || url.endsWith('.TIF')
+}
+
+/**
+ * Detects if a buffer contains a TIFF image by checking magic bytes
+ * TIFF files start with either:
+ * - Little-endian: 0x49 0x49 0x2A 0x00 ("II" + 42)
+ * - Big-endian: 0x4D 0x4D 0x00 0x2A ("MM" + 42)
+ */
+function isTiffBuffer(buffer: ArrayBuffer): boolean {
+  if (buffer.byteLength < 4) return false
+
+  const bytes = new Uint8Array(buffer, 0, 4)
+
+  // Little-endian TIFF: II*\0
+  const isLittleEndian =
+    bytes[0] === 0x49 && bytes[1] === 0x49 && bytes[2] === 0x2a && bytes[3] === 0x00
+
+  // Big-endian TIFF: MM\0*
+  const isBigEndian =
+    bytes[0] === 0x4d && bytes[1] === 0x4d && bytes[2] === 0x00 && bytes[3] === 0x2a
+
+  return isLittleEndian || isBigEndian
 }
 
 /**
