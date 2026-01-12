@@ -12,15 +12,8 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useUIStore, type EditorFontFamily, type EditorFontSize } from '@/store/use-ui-store'
-
-// Font family options with display names
-const FONT_FAMILIES: { value: EditorFontFamily; label: string; fontClass: string }[] = [
-  { value: 'monlam', label: 'Monlam OuChan', fontClass: "font-['monlam']" },
-  { value: 'monlam-2', label: 'Monlam TBslim', fontClass: "font-['monlam-2']" },
-]
-
-// Font size options
-const FONT_SIZES: EditorFontSize[] = [14, 16, 18, 20, 24, 28, 32]
+import { FONT_FAMILIES } from './constant'
+import { FONT_SIZES } from './constant'
 
 type EditorToolbarProps = {
   onClear: () => void

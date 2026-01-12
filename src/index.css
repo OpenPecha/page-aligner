@@ -26,6 +26,16 @@
   unicode-range: U+0F00-0FFF;
   size-adjust: 125%;
 }
+@font-face {
+  font-family: 'monlam-3';
+  src: url('./assets/font/Monlam-font-for-Web.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+  /* CRITICAL: This tells browser to ONLY use this font for Tibetan glyphs */
+  unicode-range: U+0F00-0FFF;
+  size-adjust: 115%;
+}
 
 /* ============================================
    2. GLOBAL VARIABLES & LANGUAGE LOGIC
