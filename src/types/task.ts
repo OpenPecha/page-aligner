@@ -101,6 +101,8 @@ export interface AssignedTask {
   batch_name: string
   group: string
   orientation?: TaskOrientation
+  annotation_rejection_count: number
+  review_rejection_count: number
 }
 
 // Task submission request

@@ -22,7 +22,8 @@
       "summary": {
         "tasksCompleted": "ལས་ཀ་བསྒྲུབས།",
         "totalChars": "ཡིག་འབྲུ་བསྡོམས།",
-        "batchesWorked": "ཚོ་སྒྲིག་བཀོལ་བ།"
+        "batchesWorked": "ཚོ་སྒྲིག་བཀོལ་བ།",
+        "rejectionCount": "བསྐྱར་ཞིབ་བྱས་རྗེས།"
       },
       "table": {
         "imageName": "རི་མོའི་མིང་།",

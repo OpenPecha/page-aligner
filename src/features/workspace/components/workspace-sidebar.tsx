@@ -131,6 +131,16 @@ export function WorkspaceSidebar({
                     getStateColor(task.state)
                   )}>
                   </div>
+                  {(task.annotation_rejection_count > 0 || task.review_rejection_count > 0) && (
+                    <div className="flex items-center gap-2 mt-2 text-xs text-red-600">
+                      {task.annotation_rejection_count > 0 && (
+                        <span>Annotation rejections: {task.annotation_rejection_count}</span>
+                      )}
+                      {task.review_rejection_count > 0 && (
+                        <span>Review rejections: {task.review_rejection_count}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

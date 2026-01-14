@@ -94,7 +94,7 @@ export function TaskPreview({
               : { height: `${splitPosition}%` }
           }
         >
-          <ImageCanvas imageUrl={task.task_url} />
+          <ImageCanvas imageUrl={task.task_url} username={task.state !=='pending' ? task.username : undefined} />
         </div>
 
         {/* Resize Handle */}

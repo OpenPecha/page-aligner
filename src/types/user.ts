@@ -66,6 +66,7 @@ export interface UserContribution {
   name: string
   char_diff: number
   batch_name: string
+  rejection_count: number
   updated_time: string
   role: 'annotator' | 'reviewer' | 'final reviewer'
 }
