@@ -35,7 +35,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-black';
+    font-family: 'noto-black';
     src: url('./assets/font/NotoSerifTibetan-Black.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -45,7 +45,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-bold';
+    font-family: 'noto-bold';
     src: url('./assets/font/NotoSerifTibetan-Bold.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -55,7 +55,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-medium';
+    font-family: 'noto-medium';
     src: url('./assets/font/NotoSerifTibetan-Medium.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -65,7 +65,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-regular';
+    font-family: 'noto-regular';
     src: url('./assets/font/NotoSerifTibetan-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -75,7 +75,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-semibold';
+    font-family: 'noto-semibold';
     src: url('./assets/font/NotoSerifTibetan-SemiBold.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
