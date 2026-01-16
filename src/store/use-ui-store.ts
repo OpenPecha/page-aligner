@@ -14,7 +14,7 @@ interface Toast {
 
 export type Theme = 'system' | 'light' | 'dark'
 export type Language = 'en' | 'bo'
-export type EditorFontFamily = 'monlam' | 'monlam-2' | 'noto-black' | 'noto-bold' | 'noto-medium' | 'noto-regular' | 'noto-semibold'
+export type EditorFontFamily = 'monlam' | 'monlam-2' | 'monlam-3' | 'noto-black' | 'noto-bold' | 'noto-medium' | 'noto-regular' | 'noto-semibold'
 export type EditorFontSize = 14 | 16 | 18 | 20 | 24 | 28 | 32
 
 interface UIState {

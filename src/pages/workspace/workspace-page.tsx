@@ -1,6 +1,5 @@
-import { WorkspaceEditor } from '@/features/workspace'
+import { Workspace } from '@/features/workspace'
 
 export function WorkspacePage() {
-  return <WorkspaceEditor />
+  return <Workspace />
 }
-

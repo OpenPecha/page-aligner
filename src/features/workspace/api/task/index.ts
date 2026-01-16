@@ -4,4 +4,6 @@ export * from './submit-task';
 export * from './trash-task';
 export * from './approve-task';
 export * from './reject-task';
+export * from './update-text-content';
+export * from './create-transcription';
 

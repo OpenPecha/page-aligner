@@ -4,8 +4,18 @@ import './index.css';
 import './lib/i18n'; // Initialize i18n before App
 import App from './App.tsx';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-)
+async function enableMocking() {
+  const { worker } = await import('./mocks/browser')
+  
+  return worker.start({
+    onUnhandledRequest: 'bypass', // Don't warn about unhandled requests
+  })
+}
+
+enableMocking().then(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  )
+})
