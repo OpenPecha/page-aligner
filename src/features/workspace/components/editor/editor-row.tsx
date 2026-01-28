@@ -21,6 +21,10 @@ interface EditorRowProps {
   fontFamily: string
   fontSize: number
   isSaving?: boolean
+  isAddingAbove?: boolean
+  isAddingBelow?: boolean
+  isDeleting?: boolean
+  isAnyActionPending?: boolean
   canDelete: boolean
   onFocus: () => void
   onTextChange: (text: string) => void
@@ -43,6 +47,10 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
     fontFamily,
     fontSize,
     isSaving,
+    isAddingAbove,
+    isAddingBelow,
+    isDeleting,
+    isAnyActionPending,
     canDelete,
     onFocus,
     onTextChange,
@@ -220,38 +228,53 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
+                disabled={isAnyActionPending}
                 onClick={(e) => {
                   e.stopPropagation()
                   onAddAbove()
                 }}
                 title="Add block above"
               >
-                <ArrowUpToLine className="h-3.5 w-3.5" />
+                {isAddingAbove ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <ArrowUpToLine className="h-3.5 w-3.5" />
+                )}
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
+                disabled={isAnyActionPending}
                 onClick={(e) => {
                   e.stopPropagation()
                   onAddBelow()
                 }}
                 title="Add block below"
               >
-                <ArrowDownToLine className="h-3.5 w-3.5" />
+                {isAddingBelow ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <ArrowDownToLine className="h-3.5 w-3.5" />
+                )}
               </Button>
               {canDelete && (
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  disabled={isAnyActionPending}
                   onClick={(e) => {
                     e.stopPropagation()
                     onDelete()
                   }}
                   title="Delete block"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  {isDeleting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
                 </Button>
               )}
             </div>

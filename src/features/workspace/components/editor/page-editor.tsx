@@ -1,12 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useParams } from 'react-router'
 import { List, useDynamicRowHeight } from 'react-window'
 import type { ListImperativeAPI } from 'react-window'
 import { EditorRowWrapper, type EditorRowProps, type AlignedRow } from './editor-row-wrapper'
 import { ResizeHandle } from './resize-handle'
 import { WorkspaceHeader } from '../header'
-import { DeleteBlockDialog } from '../dialogs'
 import { useEditorStore, useUIStore } from '@/store/use-editor-store'
 import { useColumnResize, useKeyboardShortcuts } from '../../hooks'
+import { useUpdateTextContent, useCreateTextContent, useDeleteTextContent } from '../../api/task'
+import { useAuth } from '@/features/auth'
 import { FONT_FAMILY_MAP, DEFAULT_ROW_HEIGHT, OVERSCAN_COUNT, SAVE_DEBOUNCE_MS } from '../../constants'
 import type { AssignedTask } from '@/types/task'
 import type { UserRole } from '@/types/user'
@@ -34,13 +36,26 @@ export function PageEditor({
   onReject,
   isSubmitting,
 }: PageEditorProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [blockToDelete, setBlockToDelete] = useState<{ id: string; order: number } | null>(null)
   const [savingBlocks, setSavingBlocks] = useState<Set<string>>(new Set())
+  // Track specific block action: { blockId, action: 'addAbove' | 'addBelow' | 'delete' }
+  const [blockAction, setBlockAction] = useState<{ blockId: string; action: 'addAbove' | 'addBelow' | 'delete' } | null>(null)
 
   const listRef = useRef<ListImperativeAPI>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const dynamicRowHeight = useDynamicRowHeight({ defaultRowHeight: DEFAULT_ROW_HEIGHT })
+
+  // Refs for debounce timers and rollback values (per block)
+  const debounceTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+  const originalTextRef = useRef<Map<string, string>>(new Map())
+
+  // Get task_id from URL params
+  const { taskId } = useParams<{ taskId: string }>()
+
+  // Auth and API mutations
+  const { currentUser } = useAuth()
+  const updateTextContent = useUpdateTextContent()
+  const createTextContent = useCreateTextContent(currentUser?.id)
+  const deleteTextContent = useDeleteTextContent(currentUser?.id)
 
   // Custom hooks
   const { imageWidthPercent, isResizing, handleResizeStart } = useColumnResize()
@@ -55,6 +70,8 @@ export function PageEditor({
   const updateBlockText = useEditorStore((state) => state.updateBlockText)
   const addBlockAbove = useEditorStore((state) => state.addBlockAbove)
   const addBlockBelow = useEditorStore((state) => state.addBlockBelow)
+  const getOrderForAbove = useEditorStore((state) => state.getOrderForAbove)
+  const getOrderForBelow = useEditorStore((state) => state.getOrderForBelow)
   const markBlockClean = useEditorStore((state) => state.markBlockClean)
 
   // UI store selectors
@@ -63,8 +80,8 @@ export function PageEditor({
 
   const fontFamily = FONT_FAMILY_MAP[editorFontFamily as keyof typeof FONT_FAMILY_MAP] || 'monlam-3'
 
-  // Initialize texts when task changes
-  // Map API TaskText to internal EditorText format
+  // Initialize texts only when task ID changes (not on every refetch)
+  // This prevents overwriting local edits during debounced saves
   useEffect(() => {
     if (task?.texts) {
       const mappedTexts = task.texts.map((text) => ({
@@ -74,39 +91,109 @@ export function PageEditor({
       }))
       initializeTexts(mappedTexts)
     }
-  }, [task?.task_id, task?.texts, initializeTexts])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task?.task_id])
 
-  // Delete confirmation
-  const handleDeleteRequest = (id: string) => {
-    const block = texts.find((t) => t.id === id)
-    if (block) {
-      setBlockToDelete({ id, order: block.order })
-      setDeleteDialogOpen(true)
+  // Delete block - API first, then store
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (!currentUser?.id || blockAction) return
+
+      setBlockAction({ blockId: id, action: 'delete' })
+
+      try {
+        await deleteTextContent.mutateAsync({
+          text_id: id,
+          user_id: currentUser.id,
+        })
+
+        // Remove block from store on success
+        deleteBlock(id)
+      } catch (error) {
+        console.error('Failed to delete text block:', error)
+      } finally {
+        setBlockAction(null)
+      }
+    },
+    [currentUser?.id, blockAction, deleteTextContent, deleteBlock]
+  )
+
+  // Debounced save handler with API call and rollback on failure
+  const handleTextChange = useCallback(
+    (id: string, text: string) => {
+      // Store original text for rollback (only if not already stored)
+      if (!originalTextRef.current.has(id)) {
+        const currentTexts = useEditorStore.getState().texts
+        const currentBlock = currentTexts.find((t) => t.id === id)
+        if (currentBlock) {
+          originalTextRef.current.set(id, currentBlock.text)
+        }
+      }
+
+      // Optimistic update to Zustand store (marks block as dirty)
+      updateBlockText(id, text)
+
+      // Clear existing timer for this block
+      const existingTimer = debounceTimersRef.current.get(id)
+      if (existingTimer) {
+        clearTimeout(existingTimer)
+      }
+
+      // Set new debounced save timer
+      const timer = setTimeout(async () => {
+        if (!currentUser?.id) return
+
+        // Get current block data from store (avoid stale closure)
+        const currentTexts = useEditorStore.getState().texts
+        const currentBlock = currentTexts.find((t) => t.id === id)
+        if (!currentBlock) return
+
+        // Show saving state
+        setSavingBlocks((prev) => new Set(prev).add(id))
+
+        try {
+          await updateTextContent.mutateAsync({
+            text_id: currentBlock.id,
+            user_id: currentUser.id,
+            content: text,
+          })
+
+          // Success: update original text reference and clear dirty state
+          originalTextRef.current.set(currentBlock.id, text)
+          markBlockClean(currentBlock.id)
+        } catch (error) {
+          // Failure: rollback to original text
+          const originalText = originalTextRef.current.get(currentBlock.id)
+          if (originalText !== undefined) {
+            updateBlockText(currentBlock.id, originalText)
+            // Clear dirty state since text now matches server
+            markBlockClean(currentBlock.id)
+          }
+          console.error('Failed to save text block:', error)
+        } finally {
+          // Clear saving state
+          setSavingBlocks((prev) => {
+            const next = new Set(prev)
+            next.delete(id)
+            return next
+          })
+          debounceTimersRef.current.delete(id)
+        }
+      }, SAVE_DEBOUNCE_MS)
+
+      debounceTimersRef.current.set(id, timer)
+    },
+    [currentUser?.id, updateBlockText, updateTextContent, markBlockClean]
+  )
+
+  // Cleanup debounce timers on unmount
+  useEffect(() => {
+    const timers = debounceTimersRef.current
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer))
+      timers.clear()
     }
-  }
-
-  const handleConfirmDelete = () => {
-    if (blockToDelete) {
-      deleteBlock(blockToDelete.id)
-      setBlockToDelete(null)
-    }
-  }
-
-  // Debounced save handler
-  const handleTextChange = (id: string, text: string) => {
-    updateBlockText(id, text)
-
-    setSavingBlocks((prev) => new Set(prev).add(id))
-
-    setTimeout(() => {
-      setSavingBlocks((prev) => {
-        const next = new Set(prev)
-        next.delete(id)
-        return next
-      })
-      markBlockClean(id)
-    }, SAVE_DEBOUNCE_MS)
-  }
+  }, [])
 
   // Handle block focus
   const handleBlockFocus = (index: number, id: string) => {
@@ -114,14 +201,73 @@ export function PageEditor({
     listRef.current?.scrollToRow({ index, align: 'smart' })
   }
 
-  // Add block handlers
-  const handleAddAbove = (id: string) => {
-    addBlockAbove(id)
-  }
+  // Add block above - API first, then store
+  const handleAddAbove = useCallback(
+    async (id: string) => {
+      if (!currentUser?.id || blockAction) return
 
-  const handleAddBelow = (id: string) => {
-    addBlockBelow(id)
-  }
+      const order = getOrderForAbove(id)
+      if (order === null) return
+
+      const taskIdToUse = taskId || task.task_id
+      setBlockAction({ blockId: id, action: 'addAbove' })
+
+      try {
+        const response = await createTextContent.mutateAsync({
+          task_id: taskIdToUse,
+          user_id: currentUser.id,
+          order,
+          content: '',
+        })
+
+        // Add block to store with server ID
+        addBlockAbove(id, {
+          id: response.text_id,
+          order: response.order,
+          text: response.content ?? '',
+        })
+      } catch (error) {
+        console.error('Failed to create text block:', error)
+      } finally {
+        setBlockAction(null)
+      }
+    },
+    [currentUser?.id, blockAction, taskId, task.task_id, getOrderForAbove, createTextContent, addBlockAbove]
+  )
+
+  // Add block below - API first, then store
+  const handleAddBelow = useCallback(
+    async (id: string) => {
+      if (!currentUser?.id || blockAction) return
+
+      const order = getOrderForBelow(id)
+      if (order === null) return
+
+      const taskIdToUse = taskId || task.task_id
+      setBlockAction({ blockId: id, action: 'addBelow' })
+
+      try {
+        const response = await createTextContent.mutateAsync({
+          task_id: taskIdToUse,
+          user_id: currentUser.id,
+          order,
+          content: '',
+        })
+
+        // Add block to store with server ID
+        addBlockBelow(id, {
+          id: response.text_id,
+          order: response.order,
+          text: response.content ?? '',
+        })
+      } catch (error) {
+        console.error('Failed to create text block:', error)
+      } finally {
+        setBlockAction(null)
+      }
+    },
+    [currentUser?.id, blockAction, taskId, task.task_id, getOrderForBelow, createTextContent, addBlockBelow]
+  )
 
   // Create merged data for aligned rows
   const alignedData: AlignedRow[] = texts.map((editorText, index) => ({
@@ -137,12 +283,13 @@ export function PageEditor({
     fontFamily,
     fontSize: editorFontSize,
     savingBlocks,
+    blockAction,
     canDelete: texts.length > 1,
     onFocus: handleBlockFocus,
     onTextChange: handleTextChange,
     onAddAbove: handleAddAbove,
     onAddBelow: handleAddBelow,
-    onDelete: handleDeleteRequest,
+    onDelete: handleDelete,
     dynamicRowHeight,
   }
 
@@ -184,13 +331,6 @@ export function PageEditor({
         />
       </div>
 
-      {/* Delete confirmation dialog */}
-      <DeleteBlockDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        blockOrder={blockToDelete?.order ?? 0}
-        onConfirm={handleConfirmDelete}
-      />
     </div>
   )
 }

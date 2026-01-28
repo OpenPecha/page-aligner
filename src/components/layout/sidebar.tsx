@@ -108,8 +108,8 @@ export function Sidebar() {
               <FileText className="h-4 w-4 text-primary-foreground" />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-bold text-sidebar-foreground font-inter">Image</span>
-              <span className="text-xs text-sidebar-foreground/70 font-inter">Transcription</span>
+              <span className="font-bold text-sidebar-foreground font-inter">Page</span>
+              <span className="text-xs text-sidebar-foreground/70 font-inter">Aligner</span>
             </div>
           </div>
         )}

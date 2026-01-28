@@ -44,9 +44,13 @@ interface EditorState {
   
   // Block mutations
   updateBlockText: (id: string, text: string) => void
-  addBlockAbove: (targetId: string) => void
-  addBlockBelow: (targetId: string) => void
+  addBlockAbove: (targetId: string, newBlock: EditorText) => void
+  addBlockBelow: (targetId: string, newBlock: EditorText) => void
   deleteBlock: (id: string) => void
+  
+  // Order calculation helpers (for API calls)
+  getOrderForAbove: (targetId: string) => number | null
+  getOrderForBelow: (targetId: string) => number | null
   
   // History actions
   undo: () => void
@@ -65,9 +69,6 @@ interface EditorState {
 }
 
 const MAX_HISTORY_SIZE = 50
-
-// Generate unique ID
-const generateId = () => `txt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
 
 // Deep clone texts
 const cloneTexts = (texts: EditorText[]): EditorText[] =>
@@ -113,53 +114,67 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     get().markBlockDirty(id)
   },
   
-  addBlockAbove: (targetId) => {
+  // Calculate order for inserting above target (used before API call)
+  getOrderForAbove: (targetId) => {
+    const { texts } = get()
+    const targetIndex = texts.findIndex(t => t.id === targetId)
+    if (targetIndex === -1) return null
+    
+    const currentOrder = texts[targetIndex].order
+    const previousOrder = targetIndex > 0 ? texts[targetIndex - 1].order : 0
+    
+    return targetIndex === 0 
+      ? currentOrder / 2 
+      : (currentOrder + previousOrder) / 2
+  },
+  
+  // Calculate order for inserting below target (used before API call)
+  getOrderForBelow: (targetId) => {
+    const { texts } = get()
+    const targetIndex = texts.findIndex(t => t.id === targetId)
+    if (targetIndex === -1) return null
+    
+    const currentOrder = texts[targetIndex].order
+    const nextOrder = targetIndex < texts.length - 1 ? texts[targetIndex + 1].order : currentOrder + 2
+    
+    return targetIndex === texts.length - 1
+      ? currentOrder + 1
+      : (currentOrder + nextOrder) / 2
+  },
+  
+  // Add block above target (called after API returns server ID)
+  addBlockAbove: (targetId, newBlock) => {
     const { texts, history } = get()
     const targetIndex = texts.findIndex(t => t.id === targetId)
     if (targetIndex === -1) return
     
     const newPast = [...history.past, cloneTexts(texts)].slice(-MAX_HISTORY_SIZE)
-    const newBlock: EditorText = {
-      id: generateId(),
-      order: texts[targetIndex].order,
-      text: '',
-    }
     
-    // Insert new block and reorder
+    // Insert new block at correct position
     const newTexts = [...texts]
     newTexts.splice(targetIndex, 0, newBlock)
     
-    // Update orders
-    const reordered = newTexts.map((t, i) => ({ ...t, order: i + 1 }))
-    
     set({
-      texts: reordered,
+      texts: newTexts,
       history: { past: newPast, future: [] },
       activeBlockId: newBlock.id,
     })
   },
   
-  addBlockBelow: (targetId) => {
+  // Add block below target (called after API returns server ID)
+  addBlockBelow: (targetId, newBlock) => {
     const { texts, history } = get()
     const targetIndex = texts.findIndex(t => t.id === targetId)
     if (targetIndex === -1) return
     
     const newPast = [...history.past, cloneTexts(texts)].slice(-MAX_HISTORY_SIZE)
-    const newBlock: EditorText = {
-      id: generateId(),
-      order: texts[targetIndex].order + 1,
-      text: '',
-    }
     
-    // Insert new block and reorder
+    // Insert new block at correct position
     const newTexts = [...texts]
     newTexts.splice(targetIndex + 1, 0, newBlock)
     
-    // Update orders
-    const reordered = newTexts.map((t, i) => ({ ...t, order: i + 1 }))
-    
     set({
-      texts: reordered,
+      texts: newTexts,
       history: { past: newPast, future: [] },
       activeBlockId: newBlock.id,
     })

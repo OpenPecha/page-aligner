@@ -10,6 +10,9 @@ export interface AlignedRow {
   editorText: EditorText
 }
 
+// Block action state type
+export type BlockAction = { blockId: string; action: 'addAbove' | 'addBelow' | 'delete' } | null
+
 // Props passed to each row via rowProps
 export interface EditorRowProps {
   alignedData: AlignedRow[]
@@ -18,6 +21,7 @@ export interface EditorRowProps {
   fontFamily: string
   fontSize: number
   savingBlocks: Set<string>
+  blockAction: BlockAction
   canDelete: boolean
   onFocus: (index: number, id: string) => void
   onTextChange: (id: string, text: string) => void
@@ -51,6 +55,7 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
     fontFamily,
     fontSize,
     savingBlocks,
+    blockAction,
     canDelete,
     onFocus,
     onTextChange,
@@ -74,6 +79,13 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
     })
   }
 
+  // Determine loading states for this specific row
+  const isThisBlockAction = blockAction?.blockId === editorText.id
+  const isAddingAbove = isThisBlockAction && blockAction?.action === 'addAbove'
+  const isAddingBelow = isThisBlockAction && blockAction?.action === 'addBelow'
+  const isDeleting = isThisBlockAction && blockAction?.action === 'delete'
+  const isAnyActionPending = blockAction !== null
+
   return (
     <div style={style} data-row-index={index}>
       <EditorRow
@@ -84,6 +96,10 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
         fontFamily={fontFamily}
         fontSize={fontSize}
         isSaving={savingBlocks.has(editorText.id)}
+        isAddingAbove={isAddingAbove}
+        isAddingBelow={isAddingBelow}
+        isDeleting={isDeleting}
+        isAnyActionPending={isAnyActionPending}
         canDelete={canDelete}
         onFocus={() => onFocus(index, editorText.id)}
         onTextChange={(text) => onTextChange(editorText.id, text)}

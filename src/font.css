@@ -84,3 +84,57 @@
     unicode-range: U+0F00-0FFF;
     size-adjust: 115%;
   }
+  @font-face {
+    font-family: 'khampa-bechu';
+    src: url('./assets/font/Khampa Dedri-Bechu Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'khampa-chuyig';
+    src: url('./assets/font/Khampa Dedri-Chuyig Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'khampa-drugang';
+    src: url('./assets/font/Khampa Dedri-Drugang Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'khampa-drutsa';
+    src: url('./assets/font/Khampa Dedri-Drutsa Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'riwoche-yigchen';
+    src: url('./assets/font/Riwoche Dhodri-Yigchen Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'riwoche-yigchung';
+    src: url('./assets/font/Riwoche Dhodri-Yigchung Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }

@@ -5,6 +5,8 @@ import './lib/i18n'; // Initialize i18n before App
 import App from './App.tsx';
 
 async function enableMocking() {
+
+  return false
   const { worker } = await import('./mocks/browser')
   
   return worker.start({

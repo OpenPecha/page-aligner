@@ -11,5 +11,5 @@ export const MIN_ROW_HEIGHT = 300
 export const SCROLL_THRESHOLD = 15
 export const OVERSCAN_COUNT = 2
 
-// Save delay for debounced auto-save
-export const SAVE_DEBOUNCE_MS = 1000
+// Save delay for debounced auto-save (2 seconds)
+export const SAVE_DEBOUNCE_MS = 2000

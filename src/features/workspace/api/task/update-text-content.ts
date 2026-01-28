@@ -1,9 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 import { apiClient } from '@/lib/axios'
 import { APPLICATION_NAME } from '@/lib/constant'
-
-import { workspaceKeys } from './workspace-keys'
 
 interface UpdateTextContentParams {
   text_id: string
@@ -21,19 +19,12 @@ const updateTextContent = async (
 ): Promise<UpdateTextContentResponse> => {
   return apiClient.put(`/tasks/${APPLICATION_NAME}/text/${params.text_id}`, {
     user_id: params.user_id,
-    content: params.content,
+    new_content: params.content,
   })
 }
 
-export const useUpdateTextContent = (user_id?: string) => {
-  const queryClient = useQueryClient()
-
+export const useUpdateTextContent = () => {
   return useMutation({
     mutationFn: updateTextContent,
-    onSuccess: () => {
-      if (user_id) {
-        queryClient.invalidateQueries({ queryKey: workspaceKeys.assignedTask(user_id) })
-      }
-    },
   })
 }

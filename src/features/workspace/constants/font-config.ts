@@ -7,7 +7,13 @@ export const FONT_FAMILIES = [
   { value: 'noto-regular', label: 'Noto Regular', fontClass: "font-['noto-regular']" },
   { value: 'noto-semibold', label: 'Noto SemiBold', fontClass: "font-['noto-semibold']" },
   { value: 'monlam', label: 'Monlam OuChan', fontClass: "font-['monlam']" },
-] as const
+  { value: 'khampa-bechu', label: 'Khampa Bechu', fontClass: "font-['khampa-bechu']" },
+  { value: 'khampa-chuyig', label: 'Khampa Chuyig', fontClass: "font-['khampa-chuyig']" },
+  { value: 'khampa-drugang', label: 'Khampa Drugang', fontClass: "font-['khampa-drugang']" },
+  { value: 'khampa-drutsa', label: 'Khampa Drutsa', fontClass: "font-['khampa-drutsa']" },
+  { value: 'riwoche-yigchen', label: 'Riwoche Yigchen', fontClass: "font-['riwoche-yigchen']" },
+  { value: 'riwoche-yigchung', label: 'Riwoche Yigchung', fontClass: "font-['riwoche-yigchung']" },
+]
 
 export const FONT_FAMILY_MAP = {
   'monlam-3': 'monlam-3',
@@ -18,6 +24,12 @@ export const FONT_FAMILY_MAP = {
   'noto-medium': 'noto-medium',
   'noto-regular': 'noto-regular',
   'noto-semibold': 'noto-semibold',
+  'khampa-bechu': 'khampa-bechu',
+  'khampa-chuyig': 'khampa-chuyig',
+  'khampa-drugang': 'khampa-drugang',
+  'khampa-drutsa': 'khampa-drutsa',
+  'riwoche-yigchen': 'riwoche-yigchen',
+  'riwoche-yigchung': 'riwoche-yigchung',
 } as const
 
 export const FONT_SIZES = [14, 16, 18, 20, 24, 28, 32] as const
