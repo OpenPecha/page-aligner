@@ -3,15 +3,16 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 import { ZoomIn, ZoomOut, RotateCcw, Maximize2, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useTiffImage } from '../hooks'
+import { useTiffImage } from '@/hooks/use-tiff-image'
 import { useTranslation } from 'react-i18next'
 
 interface ImageCanvasProps {
   imageUrl: string
   isLoading?: boolean
+  username?: string
 }
 
-export function ImageCanvas({ imageUrl, isLoading }: ImageCanvasProps) {
+export function ImageCanvas({ imageUrl, isLoading, username }: ImageCanvasProps) {
   const { t } = useTranslation('workspace')
   const containerRef = useRef<HTMLDivElement>(null)
   const { displayUrl, isConverting, error } = useTiffImage(imageUrl)
@@ -71,7 +72,7 @@ export function ImageCanvas({ imageUrl, isLoading }: ImageCanvasProps) {
           <>
             {/* Toolbar */}
             <div className="flex items-center justify-between border-b border-border bg-muted/30 px-3 py-2">
-              <span className="text-sm font-medium text-foreground">{t('imageCanvas.sourceImage')}</span>
+              <span className="text-sm font-medium text-foreground">{username ? `${username}` : t('imageCanvas.sourceImage')}</span>
               <div className="flex gap-1">
                 <Button
                   variant="ghost"

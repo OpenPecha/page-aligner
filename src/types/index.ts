@@ -13,6 +13,8 @@ export type {
   Task,
   TaskHistoryEntry,
   TaskOrientation,
+  TaskImage,
+  TaskText,
   AssignedTask,
   AssignTaskRequest,
   SubmitTaskRequest,

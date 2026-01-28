@@ -97,7 +97,7 @@ export function UserReportDialog({ open, onOpenChange, user }: UserReportDialogP
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="pl-9 h-9"
+                className="pl-9 h-9 bg-muted/80"
               />
             </div>
           </div>
@@ -113,7 +113,7 @@ export function UserReportDialog({ open, onOpenChange, user }: UserReportDialogP
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="pl-9 h-9"
+                className="pl-9 h-9 bg-muted/80"
               />
             </div>
           </div>
@@ -126,17 +126,16 @@ export function UserReportDialog({ open, onOpenChange, user }: UserReportDialogP
         <UserReportSummary contributions={contributions} isLoading={isLoading} />
 
         {/* Contributions Table */}
-        <div className="flex-1 min-h-0 overflow-hidden">
-          <h4 className="text-sm font-medium mb-2">{t('users.report.contributions')}</h4>
-          <div className="border rounded-lg overflow-hidden h-[calc(100%-2rem)]">
-            <div className="overflow-auto h-full">
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col gap-2">
+          <h4 className="text-sm font-medium">{t('users.report.contributions')}</h4>
+          <div className="border rounded-lg overflow-auto flex-1">
               {isLoading ? (
                 <ContributionsTableSkeleton />
               ) : contributions.length === 0 ? (
                 <EmptyContributions />
               ) : (
                 <table className="w-full text-sm">
-                  <thead className="bg-muted/50 sticky top-0">
+                  <thead className="bg-muted sticky top-0">
                     <tr>
                       <th className="text-left px-3 py-2 font-medium">
                         {t('users.report.table.imageName')}
@@ -155,14 +154,13 @@ export function UserReportDialog({ open, onOpenChange, user }: UserReportDialogP
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="h-full">
                     {contributions.map((item) => (
                       <ContributionRow key={item.task_id} contribution={item} />
                     ))}
                   </tbody>
                 </table>
               )}
-            </div>
           </div>
         </div>
       </DialogContent>

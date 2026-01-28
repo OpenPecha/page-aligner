@@ -3,6 +3,7 @@ import type { AssignedTask } from '@/types'
 import { workspaceKeys } from './workspace-keys'
 import { apiClient } from '@/lib/axios'
 import { APPLICATION_NAME } from '@/lib/constant'
+
 const getAssignedTask = async (userId: string): Promise<AssignedTask | null> => {
   try {
     return await apiClient.get(`/tasks/${APPLICATION_NAME}/assign/${userId}`)

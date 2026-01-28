@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GripHorizontal, GripVertical, RotateCcw } from 'lucide-react'
-import { ImageCanvas } from '@/features/workspace/components/image-canvas'
+import { ImageCanvas } from './image-canvas'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -94,7 +94,7 @@ export function TaskPreview({
               : { height: `${splitPosition}%` }
           }
         >
-          <ImageCanvas imageUrl={task.task_url} />
+          <ImageCanvas imageUrl={task.task_url} username={task.state !=='pending' ? task.username : undefined} />
         </div>
 
         {/* Resize Handle */}

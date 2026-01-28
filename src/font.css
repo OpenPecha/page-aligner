@@ -35,7 +35,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-black';
+    font-family: 'noto-black';
     src: url('./assets/font/NotoSerifTibetan-Black.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -45,7 +45,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-bold';
+    font-family: 'noto-bold';
     src: url('./assets/font/NotoSerifTibetan-Bold.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -55,7 +55,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-medium';
+    font-family: 'noto-medium';
     src: url('./assets/font/NotoSerifTibetan-Medium.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -65,7 +65,7 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-regular';
+    font-family: 'noto-regular';
     src: url('./assets/font/NotoSerifTibetan-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
@@ -75,12 +75,66 @@
     size-adjust: 115%;
   }
   @font-face {
-    font-family: 'nato-semibold';
+    font-family: 'noto-semibold';
     src: url('./assets/font/NotoSerifTibetan-SemiBold.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
     /* CRITICAL: This tells browser to ONLY use this font for Tibetan glyphs */
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'khampa-bechu';
+    src: url('./assets/font/Khampa Dedri-Bechu Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'khampa-chuyig';
+    src: url('./assets/font/Khampa Dedri-Chuyig Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'khampa-drugang';
+    src: url('./assets/font/Khampa Dedri-Drugang Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'khampa-drutsa';
+    src: url('./assets/font/Khampa Dedri-Drutsa Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'riwoche-yigchen';
+    src: url('./assets/font/Riwoche Dhodri-Yigchen Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0F00-0FFF;
+    size-adjust: 115%;
+  }
+  @font-face {
+    font-family: 'riwoche-yigchung';
+    src: url('./assets/font/Riwoche Dhodri-Yigchung Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
     unicode-range: U+0F00-0FFF;
     size-adjust: 115%;
   }

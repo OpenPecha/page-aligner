@@ -144,6 +144,9 @@ const DevAuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setCurrentUser(user)
         setIsLoading(false)
       }, 0)
+    } else {
+      // No stored user, stop loading
+      setIsLoading(false)
     }
   }, [])
 

@@ -88,19 +88,35 @@ export interface AssignTaskRequest {
   userId: string
 }
 
+// Image from backend API
+export interface TaskImage {
+  id: string
+  url: string
+  order: number
+}
+
+// Text/transcription from backend API
+export interface TaskText {
+  text_id: string
+  order: number
+  page_number: number
+  content: string | null
+}
+
 // Task orientation type
 export type TaskOrientation = 'landscape' | 'portrait'
 
 // Assigned task from real backend API
 export interface AssignedTask {
   task_id: string
-  task_name: string
-  task_url: string
-  task_transcript: string
   state: 'annotating' | 'submitted' | 'reviewing' | 'finalising' | 'completed' | 'trashed'
-  batch_name: string
-  group: string
-  orientation?: TaskOrientation
+  batch_id: string
+  group_id: string
+  volume_id: string
+  images: TaskImage[]
+  texts: TaskText[]
+  annotation_rejection_count: number
+  review_rejection_count: number
 }
 
 // Task submission request

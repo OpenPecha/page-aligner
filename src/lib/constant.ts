@@ -1,1 +1,1 @@
-export const APPLICATION_NAME = 'imagetranscription'
+export const APPLICATION_NAME = 'pagealigner'
