@@ -51,6 +51,9 @@ export function PageEditor({
   // Get task_id from URL params
   const { taskId } = useParams<{ taskId: string }>()
 
+  // Resolved task ID (from URL params or task object)
+  const taskIdToUse = taskId || task.task_id
+
   // Auth and API mutations
   const { currentUser } = useAuth()
   const updateTextContent = useUpdateTextContent()
@@ -97,12 +100,13 @@ export function PageEditor({
   // Delete block - API first, then store
   const handleDelete = useCallback(
     async (id: string) => {
-      if (!currentUser?.id || blockAction) return
+      if (!currentUser?.id || blockAction || !taskIdToUse) return
 
       setBlockAction({ blockId: id, action: 'delete' })
 
       try {
         await deleteTextContent.mutateAsync({
+          task_id: taskIdToUse,
           text_id: id,
           user_id: currentUser.id,
         })
@@ -115,7 +119,7 @@ export function PageEditor({
         setBlockAction(null)
       }
     },
-    [currentUser?.id, blockAction, deleteTextContent, deleteBlock]
+    [currentUser?.id, blockAction, taskIdToUse, deleteTextContent, deleteBlock]
   )
 
   // Debounced save handler with API call and rollback on failure
@@ -153,9 +157,10 @@ export function PageEditor({
 
         try {
           await updateTextContent.mutateAsync({
+            task_id: taskIdToUse,
             text_id: currentBlock.id,
             user_id: currentUser.id,
-            content: text,
+            new_content: text,
           })
 
           // Success: update original text reference and clear dirty state
@@ -183,7 +188,7 @@ export function PageEditor({
 
       debounceTimersRef.current.set(id, timer)
     },
-    [currentUser?.id, updateBlockText, updateTextContent, markBlockClean]
+    [currentUser?.id, taskIdToUse, updateBlockText, updateTextContent, markBlockClean]
   )
 
   // Cleanup debounce timers on unmount
@@ -209,7 +214,6 @@ export function PageEditor({
       const order = getOrderForAbove(id)
       if (order === null) return
 
-      const taskIdToUse = taskId || task.task_id
       setBlockAction({ blockId: id, action: 'addAbove' })
 
       try {
@@ -217,7 +221,6 @@ export function PageEditor({
           task_id: taskIdToUse,
           user_id: currentUser.id,
           order,
-          content: '',
         })
 
         // Add block to store with server ID
@@ -232,7 +235,7 @@ export function PageEditor({
         setBlockAction(null)
       }
     },
-    [currentUser?.id, blockAction, taskId, task.task_id, getOrderForAbove, createTextContent, addBlockAbove]
+    [currentUser?.id, blockAction, taskIdToUse, getOrderForAbove, createTextContent, addBlockAbove]
   )
 
   // Add block below - API first, then store
@@ -243,7 +246,6 @@ export function PageEditor({
       const order = getOrderForBelow(id)
       if (order === null) return
 
-      const taskIdToUse = taskId || task.task_id
       setBlockAction({ blockId: id, action: 'addBelow' })
 
       try {
@@ -251,7 +253,6 @@ export function PageEditor({
           task_id: taskIdToUse,
           user_id: currentUser.id,
           order,
-          content: '',
         })
 
         // Add block to store with server ID
@@ -266,7 +267,7 @@ export function PageEditor({
         setBlockAction(null)
       }
     },
-    [currentUser?.id, blockAction, taskId, task.task_id, getOrderForBelow, createTextContent, addBlockBelow]
+    [currentUser?.id, blockAction, taskIdToUse, getOrderForBelow, createTextContent, addBlockBelow]
   )
 
   // Create merged data for aligned rows
