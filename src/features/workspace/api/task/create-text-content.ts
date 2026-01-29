@@ -9,7 +9,6 @@ interface CreateTextContentParams {
   task_id: string
   user_id: string
   order: number
-  content: string
 }
 
 interface CreateTextContentResponse {
@@ -21,12 +20,13 @@ interface CreateTextContentResponse {
 const createTextContent = async (
   params: CreateTextContentParams
 ): Promise<CreateTextContentResponse> => {
-  return apiClient.post(`/tasks/${APPLICATION_NAME}/add-text`, {
-    user_id: params.user_id,
-    task_id: params.task_id,
-    order: params.order,
-    content: params.content,
-  })
+  return apiClient.post(
+    `/tasks/${APPLICATION_NAME}/tasks/${params.task_id}/texts`,
+    {
+      user_id: params.user_id,
+      order: params.order,
+    }
+  )
 }
 
 export const useCreateTextContent = (user_id?: string) => {
