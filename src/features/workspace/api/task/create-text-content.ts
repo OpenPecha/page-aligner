@@ -8,13 +8,14 @@ import { workspaceKeys } from './workspace-keys'
 interface CreateTextContentParams {
   task_id: string
   user_id: string
-  order: number
+  type: 'before' | 'after'
+  text_id: string
+  count: number
 }
 
 interface CreateTextContentResponse {
-  text_id: string
-  order: number
-  content: string | null
+  created_count: number
+  task_id: string
 }
 
 const createTextContent = async (
@@ -24,7 +25,9 @@ const createTextContent = async (
     `/tasks/${APPLICATION_NAME}/tasks/${params.task_id}/texts`,
     {
       user_id: params.user_id,
-      order: params.order,
+      type: params.type,
+      text_id: params.text_id,
+      count: params.count,
     }
   )
 }

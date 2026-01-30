@@ -23,11 +23,14 @@ export interface EditorRowProps {
   savingBlocks: Set<string>
   blockAction: BlockAction
   canDelete: boolean
+  activeCountInput: { blockId: string; type: 'above' | 'below' } | null
   onFocus: (index: number, id: string) => void
   onTextChange: (id: string, text: string) => void
-  onAddAbove: (id: string) => void
-  onAddBelow: (id: string) => void
+  onAddAbove: (id: string, count: number) => void
+  onAddBelow: (id: string, count: number) => void
   onDelete: (id: string) => void
+  onShowCountInput: (blockId: string, type: 'above' | 'below') => void
+  onHideCountInput: () => void
   dynamicRowHeight: DynamicRowHeight
 }
 
@@ -57,11 +60,14 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
     savingBlocks,
     blockAction,
     canDelete,
+    activeCountInput,
     onFocus,
     onTextChange,
     onAddAbove,
     onAddBelow,
     onDelete,
+    onShowCountInput,
+    onHideCountInput,
     dynamicRowHeight,
   } = props
 
@@ -86,6 +92,10 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
   const isDeleting = isThisBlockAction && blockAction?.action === 'delete'
   const isAnyActionPending = blockAction !== null
 
+  // Determine if count input is active for this row
+  const isCountInputAbove = activeCountInput?.blockId === editorText.id && activeCountInput?.type === 'above'
+  const isCountInputBelow = activeCountInput?.blockId === editorText.id && activeCountInput?.type === 'below'
+
   return (
     <div style={style} data-row-index={index}>
       <EditorRow
@@ -101,11 +111,15 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
         isDeleting={isDeleting}
         isAnyActionPending={isAnyActionPending}
         canDelete={canDelete}
+        isCountInputAbove={isCountInputAbove}
+        isCountInputBelow={isCountInputBelow}
         onFocus={() => onFocus(index, editorText.id)}
         onTextChange={(text) => onTextChange(editorText.id, text)}
-        onAddAbove={() => onAddAbove(editorText.id)}
-        onAddBelow={() => onAddBelow(editorText.id)}
+        onAddAbove={(count) => onAddAbove(editorText.id, count)}
+        onAddBelow={(count) => onAddBelow(editorText.id, count)}
         onDelete={() => onDelete(editorText.id)}
+        onShowCountInput={(type) => onShowCountInput(editorText.id, type)}
+        onHideCountInput={onHideCountInput}
         onHeightChange={handleHeightChange}
       />
     </div>
