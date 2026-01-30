@@ -39,6 +39,8 @@ export function PageEditor({
   const [savingBlocks, setSavingBlocks] = useState<Set<string>>(new Set())
   // Track specific block action: { blockId, action: 'addAbove' | 'addBelow' | 'delete' }
   const [blockAction, setBlockAction] = useState<{ blockId: string; action: 'addAbove' | 'addBelow' | 'delete' } | null>(null)
+  // Track which block has the count input open
+  const [activeCountInput, setActiveCountInput] = useState<{ blockId: string; type: 'above' | 'below' } | null>(null)
 
   const listRef = useRef<ListImperativeAPI>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -71,10 +73,6 @@ export function PageEditor({
   const setActiveBlock = useEditorStore((state) => state.setActiveBlock)
   const deleteBlock = useEditorStore((state) => state.deleteBlock)
   const updateBlockText = useEditorStore((state) => state.updateBlockText)
-  const addBlockAbove = useEditorStore((state) => state.addBlockAbove)
-  const addBlockBelow = useEditorStore((state) => state.addBlockBelow)
-  const getOrderForAbove = useEditorStore((state) => state.getOrderForAbove)
-  const getOrderForBelow = useEditorStore((state) => state.getOrderForBelow)
   const markBlockClean = useEditorStore((state) => state.markBlockClean)
 
   // UI store selectors
@@ -83,8 +81,8 @@ export function PageEditor({
 
   const fontFamily = FONT_FAMILY_MAP[editorFontFamily as keyof typeof FONT_FAMILY_MAP] || 'monlam-3'
 
-  // Initialize texts only when task ID changes (not on every refetch)
-  // This prevents overwriting local edits during debounced saves
+  // Initialize texts when task ID changes or when texts count changes (bulk add/delete)
+  // The texts.length dependency ensures UI updates after bulk operations
   useEffect(() => {
     if (task?.texts) {
       const mappedTexts = task.texts.map((text) => ({
@@ -95,7 +93,7 @@ export function PageEditor({
       initializeTexts(mappedTexts)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [task?.task_id])
+  }, [task?.task_id, task?.texts?.length])
 
   // Delete block - API first, then store
   const handleDelete = useCallback(
@@ -206,68 +204,69 @@ export function PageEditor({
     listRef.current?.scrollToRow({ index, align: 'smart' })
   }
 
-  // Add block above - API first, then store
-  const handleAddAbove = useCallback(
-    async (id: string) => {
-      if (!currentUser?.id || blockAction) return
+  // Show count input for adding blocks
+  const handleShowCountInput = useCallback(
+    (blockId: string, type: 'above' | 'below') => {
+      setActiveCountInput({ blockId, type })
+    },
+    []
+  )
 
-      const order = getOrderForAbove(id)
-      if (order === null) return
+  // Hide count input
+  const handleHideCountInput = useCallback(() => {
+    setActiveCountInput(null)
+  }, [])
+
+  // Add block above - API first, then refetch
+  const handleAddAbove = useCallback(
+    async (id: string, count: number) => {
+      if (!currentUser?.id || blockAction) return
 
       setBlockAction({ blockId: id, action: 'addAbove' })
 
       try {
-        const response = await createTextContent.mutateAsync({
+        await createTextContent.mutateAsync({
           task_id: taskIdToUse,
           user_id: currentUser.id,
-          order,
+          type: 'before',
+          text_id: id,
+          count,
         })
-
-        // Add block to store with server ID
-        addBlockAbove(id, {
-          id: response.text_id,
-          order: response.order,
-          text: response.content ?? '',
-        })
+        // Query invalidation happens in mutation onSuccess
       } catch (error) {
-        console.error('Failed to create text block:', error)
+        console.error('Failed to create text blocks:', error)
       } finally {
         setBlockAction(null)
+        setActiveCountInput(null)
       }
     },
-    [currentUser?.id, blockAction, taskIdToUse, getOrderForAbove, createTextContent, addBlockAbove]
+    [currentUser?.id, blockAction, taskIdToUse, createTextContent]
   )
 
-  // Add block below - API first, then store
+  // Add block below - API first, then refetch
   const handleAddBelow = useCallback(
-    async (id: string) => {
+    async (id: string, count: number) => {
       if (!currentUser?.id || blockAction) return
-
-      const order = getOrderForBelow(id)
-      if (order === null) return
 
       setBlockAction({ blockId: id, action: 'addBelow' })
 
       try {
-        const response = await createTextContent.mutateAsync({
+        await createTextContent.mutateAsync({
           task_id: taskIdToUse,
           user_id: currentUser.id,
-          order,
+          type: 'after',
+          text_id: id,
+          count,
         })
-
-        // Add block to store with server ID
-        addBlockBelow(id, {
-          id: response.text_id,
-          order: response.order,
-          text: response.content ?? '',
-        })
+        // Query invalidation happens in mutation onSuccess
       } catch (error) {
-        console.error('Failed to create text block:', error)
+        console.error('Failed to create text blocks:', error)
       } finally {
         setBlockAction(null)
+        setActiveCountInput(null)
       }
     },
-    [currentUser?.id, blockAction, taskIdToUse, getOrderForBelow, createTextContent, addBlockBelow]
+    [currentUser?.id, blockAction, taskIdToUse, createTextContent]
   )
 
   // Create merged data for aligned rows
@@ -286,11 +285,14 @@ export function PageEditor({
     savingBlocks,
     blockAction,
     canDelete: texts.length > 1,
+    activeCountInput,
     onFocus: handleBlockFocus,
     onTextChange: handleTextChange,
     onAddAbove: handleAddAbove,
     onAddBelow: handleAddBelow,
     onDelete: handleDelete,
+    onShowCountInput: handleShowCountInput,
+    onHideCountInput: handleHideCountInput,
     dynamicRowHeight,
   }
 
