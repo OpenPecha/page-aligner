@@ -83,20 +83,41 @@ export function PageEditor({
 
   const fontFamily = FONT_FAMILY_MAP[editorFontFamily as keyof typeof FONT_FAMILY_MAP] || 'monlam-3'
 
-  // Calculate current row index from active block
+  // Calculate max row count for aligned data
+  const maxRowCount = Math.max(texts.length, task.images.length)
+
+  // Calculate current row index from active block (supports composite IDs)
   const currentRowIndex = activeBlockId
-    ? texts.findIndex((t) => t.id === activeBlockId)
+    ? (() => {
+        // First try to find by text block ID
+        const textIndex = texts.findIndex((t) => t.id === activeBlockId)
+        if (textIndex !== -1) return textIndex
+        
+        // Check if it's an image-only row ID (format: "image-{imageId}")
+        if (activeBlockId.startsWith('image-')) {
+          const imageId = activeBlockId.replace('image-', '')
+          const imageIndex = task.images.findIndex((img) => img.id === imageId)
+          if (imageIndex !== -1) return imageIndex
+        }
+        
+        return null
+      })()
     : null
 
-  // Navigation scroll handler
+  // Navigation scroll handler (handles both text and image-only rows)
   const handleScrollToRow = useCallback((index: number) => {
     listRef.current?.scrollToRow({ index, align: 'center' })
-    // Set active block when navigating
-    const targetBlock = texts[index]
-    if (targetBlock) {
-      setActiveBlock(targetBlock.id)
+    
+    // Set active block when navigating using composite ID strategy
+    const targetText = texts[index]
+    const targetImage = task.images[index]
+    
+    if (targetText) {
+      setActiveBlock(targetText.id)
+    } else if (targetImage) {
+      setActiveBlock(`image-${targetImage.id}`)
     }
-  }, [texts, setActiveBlock])
+  }, [texts, task.images, setActiveBlock])
 
   // Initialize texts when task ID changes or when texts count changes (bulk add/delete)
   // The texts.length dependency ensures UI updates after bulk operations
@@ -271,9 +292,9 @@ export function PageEditor({
     [currentUser?.id, blockAction, taskIdToUse, createTextContent]
   )
 
-  // Create merged data for aligned rows
-  const alignedData: AlignedRow[] = texts.map((editorText, index) => ({
-    editorText,
+  // Create aligned data using max count of texts and images
+  const alignedData: AlignedRow[] = Array.from({ length: maxRowCount }, (_, index) => ({
+    editorText: texts[index],
     image: task.images[index],
   }))
 
@@ -336,7 +357,7 @@ export function PageEditor({
       {/* Floating navigation for large documents */}
       <EditorNavigation
         currentRowIndex={currentRowIndex}
-        totalRows={texts.length}
+        totalRows={alignedData.length}
         onScrollToRow={handleScrollToRow}
         isGoToOpen={isGoToOpen}
         onGoToOpenChange={setIsGoToOpen}
