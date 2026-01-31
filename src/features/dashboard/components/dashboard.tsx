@@ -18,7 +18,7 @@ export function Dashboard() {
   if (!currentUser) return null
 
   const handleContinue = () => {
-    navigate('/workspace')
+    navigate(`/workspace/${task?.task_id}`)
   }
 
   return (

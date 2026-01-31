@@ -1,11 +1,10 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle, useState, useCallback } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
-import { AlertTriangle, Loader2, ArrowUpToLine, ArrowDownToLine, Trash2 } from 'lucide-react'
+import { AlertTriangle, Loader2, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useTiffImage } from '@/hooks/use-tiff-image'
-import { useClickOutside } from '@/hooks'
 import { useEditorStore } from '@/store/use-editor-store'
 import { MIN_ROW_HEIGHT } from '../../constants'
 import type { TaskImage } from '@/types/task'
@@ -28,15 +27,11 @@ interface EditorRowProps {
   isDeleting?: boolean
   isAnyActionPending?: boolean
   canDelete: boolean
-  isCountInputAbove?: boolean
-  isCountInputBelow?: boolean
   onFocus: () => void
   onTextChange: (text: string) => void
   onAddAbove: (count: number) => void
   onAddBelow: (count: number) => void
   onDelete: () => void
-  onShowCountInput: (type: 'above' | 'below') => void
-  onHideCountInput: () => void
   onHeightChange?: () => void
 }
 
@@ -58,40 +53,19 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
     isDeleting,
     isAnyActionPending,
     canDelete,
-    isCountInputAbove,
-    isCountInputBelow,
     onFocus,
     onTextChange,
     onAddAbove,
     onAddBelow,
     onDelete,
-    onShowCountInput,
-    onHideCountInput,
     onHeightChange,
   },
   ref
 ) {
   const rowRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const countInputRef = useRef<HTMLDivElement>(null)
   const [countValue, setCountValue] = useState('1')
   const isDirty = useEditorStore((state) => state.isDirty(editorText.id))
-
-  // Determine if count input is currently active
-  const isCountInputActive = isCountInputAbove || isCountInputBelow
-
-  // Handle hiding count input and resetting value
-  const handleHideAndReset = useCallback(() => {
-    setCountValue('1')
-    onHideCountInput()
-  }, [onHideCountInput])
-
-  // Handle click outside to close count input
-  useClickOutside(countInputRef, () => {
-    if (isCountInputActive) {
-      handleHideAndReset()
-    }
-  })
 
   // Handle count input change - clamp to max 100
   const handleCountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,34 +84,19 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
     }
   }, [])
 
-  // Handle count input submission
-  const handleCountSubmit = useCallback(
-    (type: 'above' | 'below') => {
-      const count = Math.min(100, Math.max(1, parseInt(countValue, 10) || 1))
-      if (type === 'above') {
-        onAddAbove(count)
-      } else {
-        onAddBelow(count)
-      }
-      // Reset for next use (parent will hide the input)
-      setCountValue('1')
-    },
-    [countValue, onAddAbove, onAddBelow]
-  )
+  // Handle add above with count reset
+  const handleAddAbove = useCallback(() => {
+    const count = Math.min(100, Math.max(1, parseInt(countValue, 10) || 1))
+    onAddAbove(count)
+    setCountValue('1')
+  }, [countValue, onAddAbove])
 
-  // Handle keydown for count input
-  const handleCountKeyDown = useCallback(
-    (e: React.KeyboardEvent, type: 'above' | 'below') => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        handleCountSubmit(type)
-      } else if (e.key === 'Escape') {
-        e.preventDefault()
-        handleHideAndReset()
-      }
-    },
-    [handleCountSubmit, handleHideAndReset]
-  )
+  // Handle add below with count reset
+  const handleAddBelow = useCallback(() => {
+    const count = Math.min(100, Math.max(1, parseInt(countValue, 10) || 1))
+    onAddBelow(count)
+    setCountValue('1')
+  }, [countValue, onAddBelow])
 
   const { displayUrl, isConverting, error } = useTiffImage(image?.url)
 
@@ -205,7 +164,7 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
         minScale={0.5}
         maxScale={4}
         centerOnInit
-        wheel={{ step: 0.1 }}
+        wheel={{ activationKeys: ['Control']}}
         panning={{ disabled: false }}
         doubleClick={{ disabled: true }}
       >
@@ -233,10 +192,14 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
     )
   }
 
+  // Determine if buttons should be visible
+  // Show on: hover OR active OR any action pending
+  const shouldShowButtons = isActive || isAnyActionPending
+
   return (
     <div
       ref={rowRef}
-      className={`flex border-b border-border transition-colors ${
+      className={`group flex border-b border-border transition-colors ${
         isActive ? 'bg-accent/5' : 'hover:bg-muted/20'
       }`}
       onClick={onFocus}
@@ -283,7 +246,7 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
           value={editorText.text}
           onChange={(e) => onTextChange(e.target.value)}
           onFocus={onFocus}
-          className="w-full flex-1 resize-none border-0 bg-transparent px-4 pb-4 pt-10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
+          className="w-full resize-none border-0 bg-transparent px-4 pb-4 pt-10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
           style={{
             fontFamily,
             fontSize: `${fontSize}px`,
@@ -294,83 +257,62 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
           spellCheck={false}
         />
 
-        {/* Block actions - only visible when active */}
-        {isActive && (
-          <div className="absolute right-3 top-3 z-10 flex items-center gap-1" ref={countInputRef}>
-            <div className="flex items-center gap-0.5 rounded-md border border-border bg-background/95 p-0.5 shadow-md backdrop-blur">
-              {/* Add Above - Button or Count Input */}
-              {isCountInputAbove ? (
-                <div className="flex items-center">
-                  {isAddingAbove ? (
-                    <div className="flex h-7 w-14 items-center justify-center">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    </div>
-                  ) : (
-                    <Input
-                      type="number"
-                      min={1}
-                      max={100}
-                      value={countValue}
-                      onChange={handleCountChange}
-                      onKeyDown={(e) => handleCountKeyDown(e, 'above')}
-                      className="h-7 w-14 border-1 bg-transparent px-2 text-center text-sm focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                      autoFocus
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-                </div>
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  disabled={isAnyActionPending}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onShowCountInput('above')
-                  }}
-                  title="Add block above"
-                >
-                  <ArrowUpToLine className="h-3.5 w-3.5" />
-                </Button>
-              )}
+        {/* Block actions - visible on hover or when active/interacting */}
+        <div
+          className={`absolute right-2 top-2 z-10 flex items-center gap-1 transition-opacity duration-200 ${
+            shouldShowButtons ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          }`}
+        >
+          <div className="flex items-center gap-0.5 rounded-md border border-border bg-background/95 p-0.5 shadow-md backdrop-blur">
+              {/* Add Above Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                disabled={isAnyActionPending}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleAddAbove()
+                }}
+                title="Add block above"
+              >
+                {isAddingAbove ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <ChevronUp className="h-3.5 w-3.5" />
+                )}
+              </Button>
 
-              {/* Add Below - Button or Count Input */}
-              {isCountInputBelow ? (
-                <div className="flex items-center">
-                  {isAddingBelow ? (
-                    <div className="flex h-7 w-14 items-center justify-center">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    </div>
-                  ) : (
-                    <Input
-                      type="number"
-                      min={1}
-                      max={100}
-                      value={countValue}
-                      onChange={handleCountChange}
-                      onKeyDown={(e) => handleCountKeyDown(e, 'below')}
-                      className="h-7 w-14 border-1 bg-transparent px-2 text-center text-sm focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                      autoFocus
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-                </div>
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  disabled={isAnyActionPending}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onShowCountInput('below')
-                  }}
-                  title="Add block below"
-                >
-                  <ArrowDownToLine className="h-3.5 w-3.5" />
-                </Button>
-              )}
+              {/* Count Input - always visible */}
+              <Input
+                type="number"
+                min={1}
+                max={100}
+                value={countValue}
+                onChange={handleCountChange}
+                disabled={isAnyActionPending}
+                className="h-7 w-12 border-1 bg-transparent px-1 text-center text-sm focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                onClick={(e) => e.stopPropagation()}
+              />
+
+              {/* Add Below Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                disabled={isAnyActionPending}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleAddBelow()
+                }}
+                title="Add block below"
+              >
+                {isAddingBelow ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                )}
+              </Button>
 
               {/* Delete Button */}
               {canDelete && (
@@ -392,9 +334,8 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
                   )}
                 </Button>
               )}
-            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
