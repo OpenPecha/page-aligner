@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/lib/axios'
 import { type Batch } from '@/types'
 import { batchKeys } from './batch-keys'
+import { APPLICATION_NAME } from '@/lib/constant'
 
 const getBatches = async (): Promise<Batch[]> => {
-  return apiClient.get('/batch/')
+  return apiClient.get(`application/${APPLICATION_NAME}/batches`)
 }
 
 export const useGetBatches = () => {

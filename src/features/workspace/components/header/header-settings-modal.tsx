@@ -97,7 +97,6 @@ export function HeaderSettingsModal({
 
   const handleAction = (action: () => void) => {
     action()
-    onOpenChange(false)
   }
 
   return (

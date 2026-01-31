@@ -8,7 +8,7 @@ export const DEFAULT_ROW_HEIGHT = 350
 export const MIN_ROW_HEIGHT = 300
 
 // Scroll behavior
-export const SCROLL_THRESHOLD = 15
+export const SCROLL_THRESHOLD = 100
 export const OVERSCAN_COUNT = 2
 
 // Save delay for debounced auto-save (2 seconds)

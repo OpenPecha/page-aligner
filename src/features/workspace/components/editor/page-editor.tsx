@@ -4,6 +4,7 @@ import { List, useDynamicRowHeight } from 'react-window'
 import type { ListImperativeAPI } from 'react-window'
 import { EditorRowWrapper, type EditorRowProps, type AlignedRow } from './editor-row-wrapper'
 import { ResizeHandle } from './resize-handle'
+import { EditorNavigation } from './editor-navigation'
 import { WorkspaceHeader } from '../header'
 import { useEditorStore, useUIStore } from '@/store/use-editor-store'
 import { useColumnResize, useKeyboardShortcuts } from '../../hooks'
@@ -39,8 +40,6 @@ export function PageEditor({
   const [savingBlocks, setSavingBlocks] = useState<Set<string>>(new Set())
   // Track specific block action: { blockId, action: 'addAbove' | 'addBelow' | 'delete' }
   const [blockAction, setBlockAction] = useState<{ blockId: string; action: 'addAbove' | 'addBelow' | 'delete' } | null>(null)
-  // Track which block has the count input open
-  const [activeCountInput, setActiveCountInput] = useState<{ blockId: string; type: 'above' | 'below' } | null>(null)
 
   const listRef = useRef<ListImperativeAPI>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -62,6 +61,9 @@ export function PageEditor({
   const createTextContent = useCreateTextContent(currentUser?.id)
   const deleteTextContent = useDeleteTextContent(currentUser?.id)
 
+  // State for navigation go-to dialog
+  const [isGoToOpen, setIsGoToOpen] = useState(false)
+
   // Custom hooks
   const { imageWidthPercent, isResizing, handleResizeStart } = useColumnResize()
   useKeyboardShortcuts()
@@ -80,6 +82,21 @@ export function PageEditor({
   const editorFontSize = useUIStore((state) => state.editorFontSize)
 
   const fontFamily = FONT_FAMILY_MAP[editorFontFamily as keyof typeof FONT_FAMILY_MAP] || 'monlam-3'
+
+  // Calculate current row index from active block
+  const currentRowIndex = activeBlockId
+    ? texts.findIndex((t) => t.id === activeBlockId)
+    : null
+
+  // Navigation scroll handler
+  const handleScrollToRow = useCallback((index: number) => {
+    listRef.current?.scrollToRow({ index, align: 'center' })
+    // Set active block when navigating
+    const targetBlock = texts[index]
+    if (targetBlock) {
+      setActiveBlock(targetBlock.id)
+    }
+  }, [texts, setActiveBlock])
 
   // Initialize texts when task ID changes or when texts count changes (bulk add/delete)
   // The texts.length dependency ensures UI updates after bulk operations
@@ -204,19 +221,6 @@ export function PageEditor({
     listRef.current?.scrollToRow({ index, align: 'smart' })
   }
 
-  // Show count input for adding blocks
-  const handleShowCountInput = useCallback(
-    (blockId: string, type: 'above' | 'below') => {
-      setActiveCountInput({ blockId, type })
-    },
-    []
-  )
-
-  // Hide count input
-  const handleHideCountInput = useCallback(() => {
-    setActiveCountInput(null)
-  }, [])
-
   // Add block above - API first, then refetch
   const handleAddAbove = useCallback(
     async (id: string, count: number) => {
@@ -237,7 +241,6 @@ export function PageEditor({
         console.error('Failed to create text blocks:', error)
       } finally {
         setBlockAction(null)
-        setActiveCountInput(null)
       }
     },
     [currentUser?.id, blockAction, taskIdToUse, createTextContent]
@@ -263,7 +266,6 @@ export function PageEditor({
         console.error('Failed to create text blocks:', error)
       } finally {
         setBlockAction(null)
-        setActiveCountInput(null)
       }
     },
     [currentUser?.id, blockAction, taskIdToUse, createTextContent]
@@ -285,14 +287,11 @@ export function PageEditor({
     savingBlocks,
     blockAction,
     canDelete: texts.length > 1,
-    activeCountInput,
     onFocus: handleBlockFocus,
     onTextChange: handleTextChange,
     onAddAbove: handleAddAbove,
     onAddBelow: handleAddBelow,
     onDelete: handleDelete,
-    onShowCountInput: handleShowCountInput,
-    onHideCountInput: handleHideCountInput,
     dynamicRowHeight,
   }
 
@@ -321,7 +320,7 @@ export function PageEditor({
             rowComponent={EditorRowWrapper}
             rowProps={rowProps}
             overscanCount={OVERSCAN_COUNT}
-            className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent h-full"
+            className="scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent h-full pb-6"
             style={{ height: '100%' }}
           />
         </div>
@@ -334,6 +333,14 @@ export function PageEditor({
         />
       </div>
 
+      {/* Floating navigation for large documents */}
+      <EditorNavigation
+        currentRowIndex={currentRowIndex}
+        totalRows={texts.length}
+        onScrollToRow={handleScrollToRow}
+        isGoToOpen={isGoToOpen}
+        onGoToOpenChange={setIsGoToOpen}
+      />
     </div>
   )
 }
