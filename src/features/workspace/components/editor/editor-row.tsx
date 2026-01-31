@@ -16,7 +16,7 @@ export interface EditorRowHandle {
 
 interface EditorRowProps {
   image?: TaskImage
-  editorText: EditorText
+  editorText?: EditorText
   isActive: boolean
   imageWidthPercent: number
   fontFamily: string
@@ -28,16 +28,18 @@ interface EditorRowProps {
   isAnyActionPending?: boolean
   canDelete: boolean
   onFocus: () => void
-  onTextChange: (text: string) => void
-  onAddAbove: (count: number) => void
-  onAddBelow: (count: number) => void
-  onDelete: () => void
+  // Optional callbacks - not provided for image-only rows
+  onTextChange?: (text: string) => void
+  onAddAbove?: (count: number) => void
+  onAddBelow?: (count: number) => void
+  onDelete?: () => void
   onHeightChange?: () => void
 }
 
 /**
  * Single row in the editor displaying an image and its transcription side by side.
  * Supports zoom/pan on images and auto-resizing text areas.
+ * Also handles image-only rows when editorText is not provided.
  */
 export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function EditorRow(
   {
@@ -65,7 +67,12 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
   const rowRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [countValue, setCountValue] = useState('1')
-  const isDirty = useEditorStore((state) => state.isDirty(editorText.id))
+  
+  // Check if this is an image-only row (no text block)
+  const isImageOnlyRow = !editorText
+  
+  // Only check dirty state if we have an editorText
+  const isDirty = useEditorStore((state) => editorText ? state.isDirty(editorText.id) : false)
 
   // Handle count input change - clamp to max 100
   const handleCountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +93,7 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
 
   // Handle add above with count reset
   const handleAddAbove = useCallback(() => {
+    if (!onAddAbove) return
     const count = Math.min(100, Math.max(1, parseInt(countValue, 10) || 1))
     onAddAbove(count)
     setCountValue('1')
@@ -93,6 +101,7 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
 
   // Handle add below with count reset
   const handleAddBelow = useCallback(() => {
+    if (!onAddBelow) return
     const count = Math.min(100, Math.max(1, parseInt(countValue, 10) || 1))
     onAddBelow(count)
     setCountValue('1')
@@ -107,14 +116,14 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
     },
   }))
 
-  // Auto-resize textarea based on content
+  // Auto-resize textarea based on content (only for rows with text)
   useEffect(() => {
     const textarea = textareaRef.current
-    if (!textarea) return
+    if (!textarea || !editorText) return
     textarea.style.height = 'auto'
     textarea.style.height = `${textarea.scrollHeight}px`
     onHeightChange?.()
-  }, [editorText.text, fontSize, onHeightChange])
+  }, [editorText?.text, fontSize, onHeightChange, editorText])
 
   // Focus textarea when block becomes active
   useEffect(() => {
@@ -224,118 +233,127 @@ export const EditorRow = forwardRef<EditorRowHandle, EditorRowProps>(function Ed
         className="relative flex flex-1 flex-col bg-background"
         style={{ width: `${100 - imageWidthPercent}%` }}
       >
-        {/* Status badge */}
-        <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
-          {(isDirty || isSaving) && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <span className="h-2 w-2 rounded-full bg-amber-500" title="Unsaved changes" />
-              )}
-            </span>
-          )}
-        </div>
-
-        {/* Text content */}
-        <textarea
-          ref={textareaRef}
-          value={editorText.text}
-          onChange={(e) => onTextChange(e.target.value)}
-          onFocus={onFocus}
-          className="w-full resize-none border-0 bg-transparent px-4 pb-4 pt-10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
-          style={{
-            fontFamily,
-            fontSize: `${fontSize}px`,
-            lineHeight: 1.8,
-            minHeight: '120px',
-          }}
-          placeholder="Enter text..."
-          spellCheck={false}
-        />
-
-        {/* Block actions - visible on hover or when active/interacting */}
-        <div
-          className={`absolute right-2 top-2 z-10 flex items-center gap-1 transition-opacity duration-200 ${
-            shouldShowButtons ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-          }`}
-        >
-          <div className="flex items-center gap-0.5 rounded-md border border-border bg-background/95 p-0.5 shadow-md backdrop-blur">
-              {/* Add Above Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                disabled={isAnyActionPending}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleAddAbove()
-                }}
-                title="Add block above"
-              >
-                {isAddingAbove ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <ChevronUp className="h-3.5 w-3.5" />
-                )}
-              </Button>
-
-              {/* Count Input - always visible */}
-              <Input
-                type="number"
-                min={1}
-                max={100}
-                value={countValue}
-                onChange={handleCountChange}
-                disabled={isAnyActionPending}
-                className="h-7 w-12 border-1 bg-transparent px-1 text-center text-sm focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                onClick={(e) => e.stopPropagation()}
-              />
-
-              {/* Add Below Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                disabled={isAnyActionPending}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleAddBelow()
-                }}
-                title="Add block below"
-              >
-                {isAddingBelow ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <ChevronDown className="h-3.5 w-3.5" />
-                )}
-              </Button>
-
-              {/* Delete Button */}
-              {canDelete && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  disabled={isAnyActionPending}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete()
-                  }}
-                  title="Delete block"
-                >
-                  {isDeleting ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-3.5 w-3.5" />
-                  )}
-                </Button>
-              )}
+        {isImageOnlyRow ? (
+          // Image-only row: no text block assigned
+          <div className="flex h-full min-h-[120px] items-center justify-center">
+            <span className="text-sm text-muted-foreground">No text block</span>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Status badge */}
+            <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
+              {(isDirty || isSaving) && (
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <span className="h-2 w-2 rounded-full bg-amber-500" title="Unsaved changes" />
+                  )}
+                </span>
+              )}
+            </div>
+
+            {/* Text content */}
+            <textarea
+              ref={textareaRef}
+              value={editorText.text}
+              onChange={(e) => onTextChange?.(e.target.value)}
+              onFocus={onFocus}
+              className="w-full resize-none border-0 bg-transparent px-4 pb-4 pt-10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
+              style={{
+                fontFamily,
+                fontSize: `${fontSize}px`,
+                lineHeight: 1.8,
+                minHeight: '120px',
+              }}
+              placeholder="Enter text..."
+              spellCheck={false}
+            />
+
+            {/* Block actions - visible on hover or when active/interacting */}
+            <div
+              className={`absolute right-2 top-2 z-10 flex items-center gap-1 transition-opacity duration-200 ${
+                shouldShowButtons ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}
+            >
+              <div className="flex items-center gap-0.5 rounded-md border border-border bg-background/95 p-0.5 shadow-md backdrop-blur">
+                  {/* Add Above Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    disabled={isAnyActionPending}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleAddAbove()
+                    }}
+                    title="Add block above"
+                  >
+                    {isAddingAbove ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <ChevronUp className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+
+                  {/* Count Input - always visible */}
+                  <Input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={countValue}
+                    onChange={handleCountChange}
+                    disabled={isAnyActionPending}
+                    className="h-7 w-12 border-1 bg-transparent px-1 text-center text-sm focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+
+                  {/* Add Below Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    disabled={isAnyActionPending}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleAddBelow()
+                    }}
+                    title="Add block below"
+                  >
+                    {isAddingBelow ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+
+                  {/* Delete Button */}
+                  {canDelete && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      disabled={isAnyActionPending}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onDelete?.()
+                      }}
+                      title="Delete block"
+                    >
+                      {isDeleting ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

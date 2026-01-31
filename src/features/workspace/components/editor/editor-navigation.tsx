@@ -151,8 +151,8 @@ export function EditorNavigation({
     >
       {/* Go-to-row panel */}
       {isGoToOpen && (
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-background/95 p-2 shadow-lg backdrop-blur-sm">
-          <span className="text-xs text-muted-foreground">Go to:</span>
+        <div className="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-slate-900/95 p-2 shadow-lg shadow-indigo-500/10 backdrop-blur-sm">
+          <span className="text-xs text-slate-400">Go to:</span>
           <Input
             ref={inputRef}
             type="number"
@@ -161,15 +161,14 @@ export function EditorNavigation({
             value={goToValue}
             onChange={(e) => setGoToValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="h-8 w-20 text-center text-sm"
+            className="h-8 w-20 border-slate-700 bg-slate-800 text-center text-sm text-slate-200 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500/20"
             placeholder={displayCurrentRow.toString()}
           />
-          <span className="text-xs text-muted-foreground">/ {totalRows}</span>
+          <span className="text-xs text-slate-400">/ {totalRows}</span>
           <Button
             size="sm"
-            variant="secondary"
             onClick={handleGoToSubmit}
-            className="h-8 px-3"
+            className="h-8 bg-indigo-600 px-3 text-white hover:bg-indigo-500"
           >
             Go
           </Button>
@@ -177,7 +176,7 @@ export function EditorNavigation({
       )}
 
       {/* Navigation buttons */}
-      <div className="flex flex-col gap-1 rounded-lg border border-border bg-background/95 p-1.5 shadow-lg backdrop-blur-sm transition-all duration-200">
+      <div className="flex flex-col gap-1 rounded-lg border border-indigo-500/30 bg-slate-900/95 p-1.5 shadow-lg shadow-indigo-500/10 backdrop-blur-sm transition-all duration-200">
         {/* Scroll to top - visible when expanded */}
         {isExpanded && (
           <Button
@@ -185,7 +184,7 @@ export function EditorNavigation({
             variant="ghost"
             onClick={handleScrollToTop}
             disabled={isNearTop}
-            className="h-8 w-8"
+            className="h-8 w-8 text-slate-400 hover:bg-indigo-600/20 hover:text-indigo-300 disabled:text-slate-600"
             title="Scroll to top"
           >
             <ChevronsUp className="h-4 w-4" />
@@ -199,7 +198,7 @@ export function EditorNavigation({
             variant="ghost"
             onClick={handlePageUp}
             disabled={isNearTop}
-            className="h-8 w-8"
+            className="h-8 w-8 text-slate-400 hover:bg-indigo-600/20 hover:text-indigo-300 disabled:text-slate-600"
             title={`Page up (${pageSize} rows)`}
           >
             <ChevronUp className="h-4 w-4" />
@@ -211,8 +210,8 @@ export function EditorNavigation({
           onClick={toggleGoTo}
           className={cn(
             'flex h-8 min-w-8 items-center justify-center rounded-md px-1.5 text-xs font-medium transition-colors',
-            'hover:bg-accent hover:text-accent-foreground',
-            isGoToOpen && 'bg-accent text-accent-foreground'
+            'text-slate-300 hover:bg-indigo-600/20 hover:text-indigo-300',
+            isGoToOpen && 'bg-indigo-600/30 text-indigo-300'
           )}
           title="Go to row"
         >
@@ -226,7 +225,7 @@ export function EditorNavigation({
             variant="ghost"
             onClick={handlePageDown}
             disabled={isNearBottom}
-            className="h-8 w-8"
+            className="h-8 w-8 text-slate-400 hover:bg-indigo-600/20 hover:text-indigo-300 disabled:text-slate-600"
             title={`Page down (${pageSize} rows)`}
           >
             <ChevronDown className="h-4 w-4" />
@@ -240,7 +239,7 @@ export function EditorNavigation({
             variant="ghost"
             onClick={handleScrollToBottom}
             disabled={isNearBottom}
-            className="h-8 w-8"
+            className="h-8 w-8 text-slate-400 hover:bg-indigo-600/20 hover:text-indigo-300 disabled:text-slate-600"
             title="Scroll to bottom"
           >
             <ChevronsDown className="h-4 w-4" />

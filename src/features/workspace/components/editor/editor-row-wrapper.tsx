@@ -7,7 +7,7 @@ import type { EditorText } from '@/store/use-editor-store'
 // Row data type for aligned image + text
 export interface AlignedRow {
   image?: TaskImage
-  editorText: EditorText
+  editorText?: EditorText
 }
 
 // Block action state type
@@ -44,6 +44,7 @@ interface EditorRowWrapperProps extends EditorRowProps {
 /**
  * Wrapper component for EditorRow that integrates with react-window v2.
  * Handles virtualization layout and dynamic row height measurement.
+ * Supports both text+image rows and image-only rows (when texts < images).
  */
 export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | null {
   const {
@@ -67,6 +68,10 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
 
   const { image, editorText } = alignedData[index]
 
+  // Composite ID: use editorText.id if available, otherwise use image.id
+  const rowId = editorText?.id ?? (image ? `image-${image.id}` : `row-${index}`)
+  const isImageOnlyRow = !editorText
+
   const handleHeightChange = () => {
     requestAnimationFrame(() => {
       const el = document.querySelector(`[data-row-index="${index}"]`)
@@ -79,8 +84,8 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
     })
   }
 
-  // Determine loading states for this specific row
-  const isThisBlockAction = blockAction?.blockId === editorText.id
+  // Determine loading states for this specific row (only applicable for text blocks)
+  const isThisBlockAction = editorText && blockAction?.blockId === editorText.id
   const isAddingAbove = isThisBlockAction && blockAction?.action === 'addAbove'
   const isAddingBelow = isThisBlockAction && blockAction?.action === 'addBelow'
   const isDeleting = isThisBlockAction && blockAction?.action === 'delete'
@@ -91,21 +96,21 @@ export function EditorRowWrapper(props: EditorRowWrapperProps): ReactElement | n
       <EditorRow
         image={image}
         editorText={editorText}
-        isActive={activeBlockId === editorText.id}
+        isActive={activeBlockId === rowId}
         imageWidthPercent={imageWidthPercent}
         fontFamily={fontFamily}
         fontSize={fontSize}
-        isSaving={savingBlocks.has(editorText.id)}
+        isSaving={editorText ? savingBlocks.has(editorText.id) : false}
         isAddingAbove={isAddingAbove}
         isAddingBelow={isAddingBelow}
         isDeleting={isDeleting}
-        isAnyActionPending={isAnyActionPending}
-        canDelete={canDelete}
-        onFocus={() => onFocus(index, editorText.id)}
-        onTextChange={(text) => onTextChange(editorText.id, text)}
-        onAddAbove={(count) => onAddAbove(editorText.id, count)}
-        onAddBelow={(count) => onAddBelow(editorText.id, count)}
-        onDelete={() => onDelete(editorText.id)}
+        isAnyActionPending={isImageOnlyRow ? false : isAnyActionPending}
+        canDelete={isImageOnlyRow ? false : canDelete}
+        onFocus={() => onFocus(index, rowId)}
+        onTextChange={editorText ? (text) => onTextChange(editorText.id, text) : undefined}
+        onAddAbove={editorText ? (count) => onAddAbove(editorText.id, count) : undefined}
+        onAddBelow={editorText ? (count) => onAddBelow(editorText.id, count) : undefined}
+        onDelete={editorText ? () => onDelete(editorText.id) : undefined}
         onHeightChange={handleHeightChange}
       />
     </div>
