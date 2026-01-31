@@ -1,8 +1,7 @@
 import {
   User,
   FileText,
-  Languages,
-  Palette,
+  Settings2,
   Type,
   Zap,
   LogOut,
@@ -11,7 +10,6 @@ import {
   Send,
   Check,
   X,
-  BookOpen,
   AlertCircle,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -23,7 +21,6 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,
@@ -105,200 +102,166 @@ export function HeaderSettingsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0 overflow-hidden p-0">
-        <DialogHeader className="px-6 pb-4 pt-6">
-          <DialogTitle className="text-xl font-semibold">Settings</DialogTitle>
+      <DialogContent className="max-w-sm gap-0 overflow-hidden p-0">
+        <DialogHeader className="border-b px-5 py-4">
+          <DialogTitle className="text-base font-semibold">Settings</DialogTitle>
         </DialogHeader>
 
-        <div className="max-h-[70vh] overflow-y-auto pb-10">
+        <div className="max-h-[70vh] overflow-y-auto">
           {/* Profile Section */}
-          <section className="px-6 py-4">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                <User className="h-4 w-4 text-primary" />
-              </div>
-              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Profile
-              </h3>
-            </div>
+          <section className="px-5 py-4">
+            <h3 className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <User className="h-3.5 w-3.5" />
+              Profile
+            </h3>
 
-            <div className="flex items-center justify-between rounded-xl bg-muted/50 p-4">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {/* Avatar */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/60 text-lg font-semibold text-primary-foreground shadow-md">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
                   {currentUser?.username?.charAt(0).toUpperCase() ||
                     currentUser?.email?.charAt(0).toUpperCase() ||
                     'U'}
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">
+                  <p className="text-sm font-medium">
                     {currentUser?.username || currentUser?.email?.split('@')[0] || 'User'}
                   </p>
-                  <Badge variant="outline" className="mt-1 text-xs">
+                  <p className="text-xs text-muted-foreground">
                     {currentUser?.role ? ROLE_CONFIG[currentUser.role]?.label : 'No Role'}
-                  </Badge>
+                  </p>
                 </div>
               </div>
 
               <Button
-                variant="ghost"
+                variant="destructive"
                 size="sm"
                 onClick={handleLogout}
-                className="gap-2 text-muted-foreground hover:text-destructive"
+                className="h-8 cursor-pointer gap-1.5 px-3 text-xs"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-3.5 w-3.5" />
                 Logout
               </Button>
             </div>
           </section>
 
-          <Separator />
+          <div className="border-t" />
 
           {/* Task Detail Section */}
-          <section className="px-6 py-4">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10">
-                <FileText className="h-4 w-4 text-amber-600" />
-              </div>
-              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Task Detail
-              </h3>
-            </div>
+          <section className="px-5 py-4">
+            <h3 className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <FileText className="h-3.5 w-3.5" />
+              Task Detail
+            </h3>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-muted/50 p-4">
-                <p className="mb-1 text-xs text-muted-foreground">Task ID</p>
-                <p className="truncate font-mono text-sm font-medium" title={task.task_id}>
-                  {task.task_id.slice(0, 12)}...
+            <div className="space-y-2.5">
+              {/* Task ID - full width for lengthy IDs */}
+              <div className="rounded-lg border bg-muted/30 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Task ID</p>
+                <p className="truncate font-mono text-xs" title={task.task_id}>
+                  {task.task_id}
                 </p>
               </div>
-              <div className="rounded-xl bg-muted/50 p-4">
-                <p className="mb-1 text-xs text-muted-foreground">Status</p>
-                <Badge variant={STATUS_VARIANTS[task.state] || 'secondary'} className="capitalize">
-                  {task.state}
-                </Badge>
-              </div>
-              <div className="col-span-2 rounded-xl bg-muted/50 p-4">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">Volume ID</p>
+
+              {/* Status & Volume in one row */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg border bg-muted/30 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Status</p>
+                  <Badge variant={STATUS_VARIANTS[task.state] || 'secondary'} className="mt-0.5 h-5 px-1.5 text-[10px] capitalize">
+                    {task.state}
+                  </Badge>
                 </div>
-                <p className="mt-1 font-mono text-sm font-medium">{task.volume_id}</p>
+                <div className="rounded-lg border bg-muted/30 px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Volume</p>
+                  <p className="truncate font-mono text-xs" title={task.volume_id}>{task.volume_id}</p>
+                </div>
               </div>
             </div>
 
-            {/* Rejection Counts - only show if there are rejections */}
+            {/* Rejection Counts */}
             {(task.annotation_rejection_count > 0 || task.review_rejection_count > 0) && (
-              <div className="mt-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4">
-                <div className="mb-2 flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-destructive" />
-                  <p className="text-xs font-medium text-destructive">Rejection History</p>
+              <div className="mt-2.5 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2">
+                <div className="mb-1.5 flex items-center gap-1.5">
+                  <AlertCircle className="h-3 w-3 text-destructive" />
+                  <p className="text-[10px] font-medium uppercase tracking-wide text-destructive">Rejections</p>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex gap-4 text-xs">
                   {task.annotation_rejection_count > 0 && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Annotation</p>
-                      <p className="font-mono text-sm font-medium text-destructive">
-                        {task.annotation_rejection_count} rejection{task.annotation_rejection_count > 1 ? 's' : ''}
-                      </p>
-                    </div>
+                    <span className="text-destructive">
+                      Annotation: <strong>{task.annotation_rejection_count}</strong>
+                    </span>
                   )}
                   {task.review_rejection_count > 0 && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Review</p>
-                      <p className="font-mono text-sm font-medium text-destructive">
-                        {task.review_rejection_count} rejection{task.review_rejection_count > 1 ? 's' : ''}
-                      </p>
-                    </div>
+                    <span className="text-destructive">
+                      Review: <strong>{task.review_rejection_count}</strong>
+                    </span>
                   )}
                 </div>
               </div>
             )}
           </section>
 
-          <Separator />
+          <div className="border-t" />
 
-          {/* Localization Section */}
-          <section className="px-6 py-4">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
-                <Languages className="h-4 w-4 text-emerald-600" />
+          {/* Appearance Section - Combined Language & Theme */}
+          <section className="px-5 py-4">
+            <h3 className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Settings2 className="h-3.5 w-3.5" />
+              Appearance
+            </h3>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <p className="mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">Language</p>
+                <LanguageToggle />
               </div>
-              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Language
-              </h3>
-            </div>
-
-            <div className="rounded-xl bg-muted/50 p-4">
-              <LanguageToggle className="justify-center" />
+              <div className="flex-1">
+                <p className="mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">Theme</p>
+                <ThemeToggle />
+              </div>
             </div>
           </section>
 
-          <Separator />
+          <div className="border-t" />
 
-          {/* Theme Section */}
-          <section className="px-6 py-4">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10">
-                <Palette className="h-4 w-4 text-violet-600" />
-              </div>
-              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Theme
-              </h3>
-            </div>
+          {/* Typography Section */}
+          <section className="px-5 py-4">
+            <h3 className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Type className="h-3.5 w-3.5" />
+              Typography
+            </h3>
 
-            <div className="rounded-xl bg-muted/50 p-4">
-              <ThemeToggle className="justify-center" />
-            </div>
-          </section>
-
-          <Separator />
-
-          {/* Font Selection Section */}
-          <section className="px-6 py-4">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10">
-                <Type className="h-4 w-4 text-rose-600" />
-              </div>
-              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Font Settings
-              </h3>
-            </div>
-
-            <div className="space-y-3">
-              {/* Font Family */}
-              <div className="rounded-xl bg-muted/50 p-4">
-                <p className="mb-2 text-xs text-muted-foreground">Font Family</p>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <p className="mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">Font</p>
                 <Select
                   value={editorFontFamily}
                   onValueChange={(value) => setEditorFontFamily(value as typeof editorFontFamily)}
                 >
-                  <SelectTrigger className="w-full bg-background">
+                  <SelectTrigger className="h-8 cursor-pointer text-xs">
                     <SelectValue placeholder="Select font" />
                   </SelectTrigger>
                   <SelectContent>
                     {FONT_FAMILIES.map((font) => (
-                      <SelectItem key={font.value} value={font.value}>
-                        <span style={{ fontFamily: font.value }}>{font.label}</span>
+                      <SelectItem key={font.value} value={font.value} className="cursor-pointer text-xs">
+                        <span>{font.label}</span>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Font Size */}
-              <div className="rounded-xl bg-muted/50 p-4">
-                <p className="mb-2 text-xs text-muted-foreground">Font Size</p>
+              <div className="w-20">
+                <p className="mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">Size</p>
                 <Select
                   value={String(editorFontSize)}
                   onValueChange={(value) => setEditorFontSize(Number(value) as typeof editorFontSize)}
                 >
-                  <SelectTrigger className="w-full bg-background">
+                  <SelectTrigger className="h-8 cursor-pointer text-xs">
                     <SelectValue placeholder="Size" />
                   </SelectTrigger>
                   <SelectContent>
                     {FONT_SIZES.map((size) => (
-                      <SelectItem key={size} value={String(size)}>
+                      <SelectItem key={size} value={String(size)} className="cursor-pointer text-xs">
                         {size}px
                       </SelectItem>
                     ))}
@@ -308,122 +271,115 @@ export function HeaderSettingsModal({
             </div>
           </section>
 
-          <Separator />
+          <div className="border-t" />
 
           {/* Actions Section */}
-          <section className="px-6 py-4">
-            <div className="mb-3 flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10">
-                <Zap className="h-4 w-4 text-blue-600" />
+          <section className="px-5 py-4">
+            <h3 className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+              <Zap className="h-3.5 w-3.5" />
+              Actions
+            </h3>
+
+            {/* Role-based Actions */}
+            {showAnnotatorActions && (
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => handleAction(onSubmit)}
+                  disabled={isSubmitting}
+                  className="h-8 flex-1 cursor-pointer gap-1.5 text-xs"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Send className="h-3.5 w-3.5" />
+                  )}
+                  {isSubmitting ? t('actions.submitting') : t('actions.submit')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAction(onTrash)}
+                  disabled={isSubmitting}
+                  className="h-8 flex-1 cursor-pointer gap-1.5 border-destructive/50 text-xs text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  {t('actions.trash')}
+                </Button>
               </div>
-              <h3 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                Actions
-              </h3>
-            </div>
+            )}
 
-            <div className="space-y-3">
-
-              {/* Role-based Actions */}
-              {showAnnotatorActions && (
-                <div className="flex gap-2">
-                   <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => handleAction(onSubmit)}
-                    disabled={isSubmitting}
-                    className="flex-1 gap-2"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                    {isSubmitting ? t('actions.submitting') : t('actions.submit')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAction(onTrash)}
-                    disabled={isSubmitting}
-                    className="flex-1 gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    {t('actions.trash')}
-                  </Button>
-                </div>
-              )}
-
-              {showReviewerActions && (
-                <div className="flex gap-2">
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => handleAction(onApprove)}
-                    disabled={isSubmitting}
-                    className="flex-1 gap-2 bg-green-600 hover:bg-green-700"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Check className="h-4 w-4" />
-                    )}
-                    {isSubmitting ? t('actions.approving') : t('actions.approve')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAction(onReject)}
-                    disabled={isSubmitting}
-                    className="flex-1 gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
-                  >
-                    <X className="h-4 w-4" />
-                    {t('actions.reject')}
-                  </Button>
-                </div>
-              )}
-
-              {showFinalReviewerActions && (
-                <div className="flex gap-2">
+            {showReviewerActions && (
+              <div className="flex gap-2">
                 <Button
                   variant="default"
                   size="sm"
                   onClick={() => handleAction(onApprove)}
                   disabled={isSubmitting}
-                  className="flex-1 gap-2 bg-green-600 hover:bg-green-700"
+                  className="h-8 flex-1 cursor-pointer gap-1.5 bg-green-600 text-xs hover:bg-green-700"
                 >
                   {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <Check className="h-4 w-4" />
+                    <Check className="h-3.5 w-3.5" />
                   )}
                   {isSubmitting ? t('actions.approving') : t('actions.approve')}
                 </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAction(onReject)}
-                    disabled={isSubmitting}
-                    className="flex-1 gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
-                  >
-                    <X className="h-4 w-4" />
-                    {t('actions.reject')}
-                  </Button>
-                </div>
-              )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAction(onReject)}
+                  disabled={isSubmitting}
+                  className="h-8 flex-1 cursor-pointer gap-1.5 border-destructive/50 text-xs text-destructive hover:bg-destructive/10"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  {t('actions.reject')}
+                </Button>
+              </div>
+            )}
 
-              {/* Show status when no actions available */}
-              {!showAnnotatorActions && !showReviewerActions && !showFinalReviewerActions && (
-                <div className="rounded-xl bg-muted/50 p-4 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    {task.state === 'completed'
-                      ? 'Task completed'
-                      : task.state === 'trashed'
-                        ? 'Task trashed'
-                        : `Viewing as ${userRole ? ROLE_CONFIG[userRole]?.label : 'Unknown'}`}
-                  </p>
-                </div>
-              )}
-            </div>
+            {showFinalReviewerActions && (
+              <div className="flex gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => handleAction(onApprove)}
+                  disabled={isSubmitting}
+                  className="h-8 flex-1 cursor-pointer gap-1.5 bg-green-600 text-xs hover:bg-green-700"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                  {isSubmitting ? t('actions.approving') : t('actions.approve')}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAction(onReject)}
+                  disabled={isSubmitting}
+                  className="h-8 flex-1 cursor-pointer gap-1.5 border-destructive/50 text-xs text-destructive hover:bg-destructive/10"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  {t('actions.reject')}
+                </Button>
+              </div>
+            )}
+
+            {/* Show status when no actions available */}
+            {!showAnnotatorActions && !showReviewerActions && !showFinalReviewerActions && (
+              <div className="rounded-lg border bg-muted/30 py-3 text-center">
+                <p className="text-xs text-muted-foreground">
+                  {task.state === 'completed'
+                    ? 'Task completed'
+                    : task.state === 'trashed'
+                      ? 'Task trashed'
+                      : `Viewing as ${userRole ? ROLE_CONFIG[userRole]?.label : 'Unknown'}`}
+                </p>
+              </div>
+            )}
           </section>
         </div>
       </DialogContent>
